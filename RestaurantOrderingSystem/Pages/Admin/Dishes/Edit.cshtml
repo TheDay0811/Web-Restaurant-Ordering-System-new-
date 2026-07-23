@@ -1,0 +1,94 @@
+@page "{id:int}"
+@model RestaurantOrderingSystem.Pages.Admin.Dishes.EditModel
+@{
+    ViewData["Title"] = "Sửa món ăn";
+}
+<style>
+    .admin-form {
+        max-width: 700px;
+        background-color: white;
+        border: 1px solid gainsboro;
+        border-radius: 10px;
+        padding: 1.5rem;
+    }
+
+    .admin-form label {
+        font-weight: 600;
+        color: darkblue;
+    }
+
+    .form-check-label {
+        font-weight: normal !important;
+        color: initial !important;
+    }
+
+    .current-image {
+        width: 140px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 6px;
+        border: 1px solid gainsboro;
+        margin-bottom: 0.5rem;
+    }
+
+    .image-link-hint {
+        background-color: whitesmoke;
+        border-left: 4px solid orange;
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+    }
+</style>
+
+<h2 style="color:darkblue;">Sửa món ăn</h2>
+
+<div class="admin-form">
+    <form method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="Dish.DishId" />
+
+        @* Xem truoc anh hien tai (theo link dang luu), giup Admin biet minh dang sua anh nao *@
+        @if (!string.IsNullOrEmpty(Model.Dish.ImageUrl))
+        {
+            <div>
+                <img class="current-image" src="@Model.Dish.ImageUrl" alt="@Model.Dish.Name" />
+            </div>
+        }
+
+        <div class="mb-3">
+            <label asp-for="Dish.Name"></label>
+            <input asp-for="Dish.Name" class="form-control" />
+            <span asp-validation-for="Dish.Name" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Dish.Description"></label>
+            <textarea asp-for="Dish.Description" class="form-control" rows="3"></textarea>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label asp-for="Dish.Price"></label>
+                <input asp-for="Dish.Price" class="form-control" />
+                <span asp-validation-for="Dish.Price" class="text-danger"></span>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label asp-for="Dish.CategoryId"></label>
+                <select asp-for="Dish.CategoryId" asp-items="Model.CategoryOptions" class="form-select">
+                    <option value="">-- Chọn danh mục --</option>
+                </select>
+                <span asp-validation-for="Dish.CategoryId" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Dish.ImageUrl"></label>
+            <input asp-for="Dish.ImageUrl" class="form-control" placeholder="https://res.cloudinary.com/..." />
+
+        </div>
+        <div class="mb-3 form-check">
+            <input asp-for="Dish.IsAvailable" class="form-check-input" />
+            <label asp-for="Dish.IsAvailable" class="form-check-label">Đang phục vụ</label>
+        </div>
+
+        <button type="submit" class="btn btn-restaurant-primary">Cập nhật</button>
+        <a asp-page="Index" class="btn btn-outline-secondary">Hủy</a>
+    </form>
+</div>

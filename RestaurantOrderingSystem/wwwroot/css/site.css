@@ -1,0 +1,23 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+/* Cac class dung rieng cho tung trang duoc dat truc tiep trong tho the <style>
+   cua file .cshtml tuong ung (Layout, Home, Menu, Cart, Order, Account, Admin...)
+   de de doc va de bao tri theo tung man hinh. File site.css nay chi chua
+   nhung thiet lap dung chung, toi thieu cho toan bo trang. */

@@ -1,0 +1,38 @@
+@page
+@model RestaurantOrderingSystem.Pages.Admin.Categories.CreateModel
+@{
+    ViewData["Title"] = "Thêm danh mục";
+}
+<style>
+    .admin-form {
+        max-width: 600px;
+        background-color: white;
+        border: 1px solid gainsboro;
+        border-radius: 10px;
+        padding: 1.5rem;
+    }
+
+    .admin-form label {
+        font-weight: 600;
+        color: darkblue;
+    }
+</style>
+
+<h2 style="color:darkblue;">Thêm danh mục mới</h2>
+
+<div class="admin-form">
+    <form method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="mb-3">
+            <label asp-for="Category.Name"></label>
+            <input asp-for="Category.Name" class="form-control" />
+            <span asp-validation-for="Category.Name" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Category.Description"></label>
+            <textarea asp-for="Category.Description" class="form-control" rows="3"></textarea>
+        </div>
+        <button type="submit" class="btn btn-restaurant-primary">Lưu</button>
+        <a asp-page="Index" class="btn btn-outline-secondary">Hủy</a>
+    </form>
+</div>

@@ -1,0 +1,92 @@
+@model IEnumerable<Dish>
+@{
+    ViewData["Title"] = "Trang chủ";
+}
+<style>
+    .hero-banner {
+        background-color: darkblue;
+        color: white;
+        border-radius: 10px;
+        padding: 3rem 2rem;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+    .hero-banner h1 {
+        font-weight: 700;
+    }
+
+    .hero-banner .btn {
+        margin-top: 1rem;
+    }
+
+    .dish-card {
+        border: 1px solid gainsboro;
+        border-radius: 10px;
+        overflow: hidden;
+        height: 100%;
+        background-color: white;
+        transition: transform 0.15s ease-in-out;
+    }
+
+    .dish-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    }
+
+    .dish-card img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+    }
+
+    .dish-card .card-body {
+        padding: 1rem;
+    }
+
+    .dish-price {
+        color: orange;
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    .section-title {
+        color: darkblue;
+        font-weight: 700;
+        border-bottom: 3px solid orange;
+        display: inline-block;
+        padding-bottom: 0.25rem;
+        margin-bottom: 1.5rem;
+    }
+</style>
+
+<div class="hero-banner">
+    <h1>Chào mừng đến với Nhà Hàng Online</h1>
+    <p class="lead">Đặt món ngon, giao nhanh, thanh toán tiện lợi ngay tại bàn.</p>
+    <a asp-controller="Menu" asp-action="Index" class="btn btn-restaurant-primary btn-lg">Xem thực đơn ngay</a>
+</div>
+
+<h3 class="section-title">Món ăn nổi bật</h3>
+
+@if (!Model.Any())
+{
+    <p>Hiện chưa có món ăn nào. Vui lòng quay lại sau.</p>
+}
+else
+{
+    <div class="row g-4">
+        @foreach (var dish in Model)
+        {
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="dish-card">
+                    <img src="@(string.IsNullOrEmpty(dish.ImageUrl) ? "https://res.cloudinary.com/demo/image/upload/w_400,h_300,c_fill/sample.jpg" : dish.ImageUrl)" alt="@dish.Name" />
+                    <div class="card-body">
+                        <h6 class="mb-1">@dish.Name</h6>
+                        <div class="dish-price">@dish.Price.ToString("N0") đ</div>
+                        <a asp-controller="Menu" asp-action="Details" asp-route-id="@dish.DishId" class="btn btn-sm btn-restaurant-dark mt-2 w-100">Xem chi tiết</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

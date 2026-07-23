@@ -1,0 +1,71 @@
+@model Dish
+@{
+    ViewData["Title"] = Model.Name;
+}
+<style>
+    .detail-image {
+        width: 100%;
+        max-height: 420px;
+        object-fit: cover;
+        border-radius: 10px;
+        border: 1px solid gainsboro;
+    }
+
+    .detail-price {
+        color: orange;
+        font-size: 1.75rem;
+        font-weight: 700;
+    }
+
+    .detail-category-badge {
+        background-color: darkblue;
+        color: white;
+    }
+
+    .add-cart-form input[type="number"] {
+        max-width: 100px;
+    }
+</style>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <img class="detail-image" src="@(string.IsNullOrEmpty(Model.ImageUrl) ? "https://res.cloudinary.com/demo/image/upload/w_600,h_400,c_fill/sample.jpg" : Model.ImageUrl)" alt="@Model.Name" />
+    </div>
+    <div class="col-md-6">
+        <span class="badge detail-category-badge mb-2">@Model.Category?.Name</span>
+        <h2>@Model.Name</h2>
+        <p class="text-muted">@Model.Description</p>
+        <div class="detail-price mb-3">@Model.Price.ToString("N0") đ</div>
+
+        @* Man hinh chi tiet mon nay hien thi khac nhau tuy vai tro dang dang nhap:
+           - Customer: thay form "Them vao gio" de dat mon
+           - Da dang nhap nhung khong phai Customer (tuc la Admin): bao khong dat duoc mon
+           - Chua dang nhap: moi bam vao thi chi xem duoc, phai dang nhap moi dat mon duoc *@
+        @if (!Model.IsAvailable)
+        {
+            <p class="text-danger fw-bold">Món ăn hiện đã ngừng phục vụ.</p>
+        }
+        else if (User.IsInRole(UserRole.Customer))
+        {
+            <form class="add-cart-form d-flex align-items-center gap-2" asp-controller="Cart" asp-action="Add" method="post">
+                <input type="hidden" name="dishId" value="@Model.DishId" />
+                <label for="quantity" class="mb-0">Số lượng:</label>
+                <input type="number" id="quantity" name="quantity" value="1" min="1" class="form-control" />
+                <button type="submit" class="btn btn-restaurant-primary">🛒 Thêm vào giỏ</button>
+            </form>
+        }
+        else if (User.Identity != null && User.Identity.IsAuthenticated)
+        {
+            <p class="text-muted fst-italic">Tài khoản quản trị không thể đặt món.</p>
+        }
+        else
+        {
+            <p>
+                <a asp-controller="Account" asp-action="Login" class="btn btn-restaurant-primary">Đăng nhập để đặt món</a>
+                <span class="text-muted d-block mt-2">Chưa có tài khoản? <a asp-controller="Account" asp-action="Register">Đăng ký ngay</a></span>
+            </p>
+        }
+
+        <a asp-action="Index" class="btn btn-link mt-3">&larr; Quay lại thực đơn</a>
+    </div>
+</div>

@@ -1,0 +1,48 @@
+@page "{id:int}"
+@model RestaurantOrderingSystem.Pages.Admin.Dishes.DeleteModel
+@{
+    ViewData["Title"] = "Xóa món ăn";
+}
+<style>
+    .admin-form {
+        max-width: 600px;
+        background-color: white;
+        border: 2px solid firebrick;
+        border-radius: 10px;
+        padding: 1.5rem;
+    }
+
+    .current-image {
+        width: 140px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 6px;
+        margin-bottom: 0.75rem;
+    }
+</style>
+
+<h2 style="color:darkblue;">Xác nhận xóa món ăn</h2>
+
+<div class="admin-form">
+    @if (Model.ErrorMessage != null)
+    {
+        <p class="text-danger fw-bold">@Model.ErrorMessage</p>
+    }
+    else
+    {
+        @if (!string.IsNullOrEmpty(Model.Dish.ImageUrl))
+        {
+            <img class="current-image" src="@Model.Dish.ImageUrl" alt="@Model.Dish.Name" />
+        }
+        <p>Bạn có chắc muốn xóa món <strong>@Model.Dish.Name</strong> (@Model.Dish.Category?.Name)?</p>
+        <form method="post">
+            <input type="hidden" asp-for="Dish.DishId" />
+            <button type="submit" class="btn btn-danger">Xóa</button>
+            <a asp-page="Index" class="btn btn-outline-secondary">Hủy</a>
+        </form>
+    }
+    @if (Model.ErrorMessage != null)
+    {
+        <a asp-page="Index" class="btn btn-outline-secondary mt-2">Quay lại danh sách</a>
+    }
+</div>

@@ -1,0 +1,88 @@
+@page
+@model RestaurantOrderingSystem.Pages.Admin.Dishes.IndexModel
+@{
+    ViewData["Title"] = "Quản lý món ăn";
+}
+<style>
+    .admin-table th {
+        background-color: darkblue;
+        color: white;
+    }
+
+    .admin-title {
+        color: darkblue;
+        font-weight: 700;
+    }
+
+    .dish-thumb {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 6px;
+    }
+
+    .price-cell {
+        color: orange;
+        font-weight: 700;
+    }
+
+    .status-available {
+        background-color: seagreen;
+        color: white;
+    }
+
+    .status-unavailable {
+        background-color: dimgray;
+        color: white;
+    }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="admin-title">Quản lý món ăn</h2>
+    <a asp-page="Create" class="btn btn-restaurant-primary">+ Thêm món ăn</a>
+</div>
+
+@if (!Model.DishList.Any())
+{
+    <p>Chưa có món ăn nào.</p>
+}
+else
+{
+    <table class="table table-bordered align-middle admin-table">
+        <thead>
+            <tr>
+                <th>Ảnh</th>
+                <th>Tên món</th>
+                <th>Danh mục</th>
+                <th>Giá</th>
+                <th>Trạng thái</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.DishList)
+            {
+                <tr>
+                    <td><img class="dish-thumb" src="@(string.IsNullOrEmpty(item.ImageUrl) ? "https://res.cloudinary.com/demo/image/upload/w_100,h_100,c_fill/sample.jpg" : item.ImageUrl)" alt="@item.Name" /></td>
+                    <td>@item.Name</td>
+                    <td>@item.Category?.Name</td>
+                    <td class="price-cell">@item.Price.ToString("N0") đ</td>
+                    <td>
+                        @if (item.IsAvailable)
+                        {
+                            <span class="badge status-available">Đang phục vụ</span>
+                        }
+                        else
+                        {
+                            <span class="badge status-unavailable">Ngừng phục vụ</span>
+                        }
+                    </td>
+                    <td>
+                        <a asp-page="Edit" asp-route-id="@item.DishId" class="btn btn-sm btn-restaurant-dark">Sửa</a>
+                        <a asp-page="Delete" asp-route-id="@item.DishId" class="btn btn-sm btn-outline-danger">Xóa</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

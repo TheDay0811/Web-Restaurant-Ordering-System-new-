@@ -1,0 +1,60 @@
+@page
+@model RestaurantOrderingSystem.Pages.Admin.Categories.IndexModel
+@{
+    ViewData["Title"] = "Quản lý danh mục";
+}
+<style>
+    .admin-table th {
+        background-color: darkblue;
+        color: white;
+    }
+
+    .admin-title {
+        color: darkblue;
+        font-weight: 700;
+    }
+
+    .count-badge {
+        background-color: orange;
+        color: white;
+    }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="admin-title">Quản lý danh mục món ăn</h2>
+    <a asp-page="Create" class="btn btn-restaurant-primary">+ Thêm danh mục</a>
+</div>
+
+@if (!Model.CategoryList.Any())
+{
+    <p>Chưa có danh mục nào.</p>
+}
+else
+{
+    <table class="table table-bordered align-middle admin-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Tên danh mục</th>
+                <th>Mô tả</th>
+                <th>Số món ăn</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.CategoryList)
+            {
+                <tr>
+                    <td>@item.CategoryId</td>
+                    <td>@item.Name</td>
+                    <td>@item.Description</td>
+                    <td><span class="badge count-badge">@(item.Dishes?.Count ?? 0)</span></td>
+                    <td>
+                        <a asp-page="Edit" asp-route-id="@item.CategoryId" class="btn btn-sm btn-restaurant-dark">Sửa</a>
+                        <a asp-page="Delete" asp-route-id="@item.CategoryId" class="btn btn-sm btn-outline-danger">Xóa</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

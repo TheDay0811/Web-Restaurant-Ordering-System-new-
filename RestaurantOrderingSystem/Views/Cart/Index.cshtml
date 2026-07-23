@@ -1,0 +1,96 @@
+@model List<CartItem>
+@{
+    ViewData["Title"] = "Giỏ hàng";
+    decimal total = Model.Sum(i => i.SubTotal);
+}
+<style>
+    .cart-table th {
+        background-color: darkblue;
+        color: white;
+    }
+
+    .cart-thumb {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 6px;
+    }
+
+    .cart-total-box {
+        background-color: white;
+        border: 2px solid orange;
+        border-radius: 10px;
+        padding: 1rem 1.5rem;
+        text-align: right;
+    }
+
+    .cart-total-box .total-amount {
+        color: orange;
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+
+    .qty-input {
+        width: 70px;
+    }
+</style>
+
+<h2 class="mb-3" style="color:darkblue;">Giỏ hàng của bạn</h2>
+
+@if (!Model.Any())
+{
+    <p>Giỏ hàng đang trống. <a asp-controller="Menu" asp-action="Index">Xem thực đơn</a> để chọn món nhé.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-bordered align-middle cart-table">
+            <thead>
+                <tr>
+                    <th>Ảnh</th>
+                    <th>Món ăn</th>
+                    <th>Đơn giá</th>
+                    <th>Số lượng</th>
+                    <th>Thành tiền</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td><img class="cart-thumb" src="@(string.IsNullOrEmpty(item.ImageUrl) ? "https://res.cloudinary.com/demo/image/upload/w_100,h_100,c_fill/sample.jpg" : item.ImageUrl)" alt="@item.DishName" /></td>
+                        <td>@item.DishName</td>
+                        <td>@item.Price.ToString("N0") đ</td>
+                        <td>
+                            <form asp-controller="Cart" asp-action="UpdateQuantity" method="post" class="d-flex gap-1">
+                                <input type="hidden" name="dishId" value="@item.DishId" />
+                                <input type="number" name="quantity" value="@item.Quantity" min="1" class="form-control qty-input" />
+                                <button type="submit" class="btn btn-sm btn-restaurant-dark">Cập nhật</button>
+                            </form>
+                        </td>
+                        <td>@item.SubTotal.ToString("N0") đ</td>
+                        <td>
+                            <form asp-controller="Cart" asp-action="Remove" method="post">
+                                <input type="hidden" name="dishId" value="@item.DishId" />
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Xóa</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <form asp-controller="Cart" asp-action="Clear" method="post">
+            <button type="submit" class="btn btn-outline-secondary">Xóa toàn bộ giỏ hàng</button>
+        </form>
+
+        <div class="cart-total-box">
+            <div>Tổng cộng:</div>
+            <div class="total-amount">@total.ToString("N0") đ</div>
+            <a asp-controller="Order" asp-action="Checkout" class="btn btn-restaurant-primary mt-2">Tiến hành đặt món</a>
+        </div>
+    </div>
+}

@@ -1,0 +1,77 @@
+@model RegisterViewModel
+@{
+    ViewData["Title"] = "Đăng ký";
+}
+<style>
+    .register-box {
+        max-width: 460px;
+        margin: 2rem auto;
+        background-color: white;
+        border: 2px solid darkblue;
+        border-radius: 10px;
+        padding: 2rem;
+    }
+
+    .register-box h2 {
+        color: darkblue;
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .register-box label {
+        font-weight: 600;
+        color: darkblue;
+    }
+
+    .register-hint {
+        background-color: whitesmoke;
+        border-left: 4px solid orange;
+        padding: 0.6rem 1rem;
+        font-size: 0.85rem;
+        margin-top: 1.5rem;
+    }
+</style>
+
+<div class="register-box">
+    <h2>Đăng ký tài khoản khách hàng</h2>
+    <form asp-controller="Account" asp-action="Register" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="mb-3">
+            <label asp-for="UserName"></label>
+            <input asp-for="UserName" class="form-control" placeholder="Nhập tên đăng nhập..." />
+            <span asp-validation-for="UserName" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="FullName"></label>
+            <input asp-for="FullName" class="form-control" placeholder="Nhập họ và tên..." />
+            <span asp-validation-for="FullName" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="PhoneNumber"></label>
+            <input asp-for="PhoneNumber" class="form-control" placeholder="Nhập số điện thoại..." />
+            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Password"></label>
+            <input asp-for="Password" type="password" class="form-control" placeholder="Nhập mật khẩu..." />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="ConfirmPassword"></label>
+            <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Nhập lại mật khẩu..." />
+            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-restaurant-primary w-100">Đăng ký</button>
+    </form>
+
+    <div class="register-hint">
+        Tài khoản đăng ký tại đây sẽ luôn là <strong>tài khoản khách hàng</strong> (Customer).
+        Đã có tài khoản? <a asp-controller="Account" asp-action="Login">Đăng nhập tại đây</a>.
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,87 @@
+@model IEnumerable<Dish>
+@{
+    ViewData["Title"] = "Thực đơn";
+    var categories = ViewBag.Categories as List<Category> ?? new List<Category>();
+    int? selectedCategoryId = ViewBag.SelectedCategoryId;
+}
+<style>
+    .category-filter .btn {
+        margin: 0 0.25rem 0.5rem 0;
+        border-radius: 20px;
+    }
+
+    .category-filter .btn-outline-restaurant {
+        border: 1px solid darkblue;
+        color: darkblue;
+        background-color: white;
+    }
+
+    .category-filter .btn-outline-restaurant.active,
+    .category-filter .btn-outline-restaurant:hover {
+        background-color: darkblue;
+        color: white;
+    }
+
+    .menu-card {
+        border: 1px solid gainsboro;
+        border-radius: 10px;
+        overflow: hidden;
+        background-color: white;
+        height: 100%;
+    }
+
+    .menu-card img {
+        width: 100%;
+        height: 190px;
+        object-fit: cover;
+    }
+
+    .menu-card .card-body {
+        padding: 1rem;
+    }
+
+    .menu-price {
+        color: orange;
+        font-weight: 700;
+    }
+
+    .unavailable-badge {
+        background-color: dimgray;
+        color: white;
+    }
+</style>
+
+<h2 class="mb-3" style="color:darkblue;">Thực đơn</h2>
+
+<div class="category-filter mb-4">
+    <a class="btn btn-outline-restaurant @(selectedCategoryId == null ? "active" : "")" asp-action="Index">Tất cả</a>
+    @foreach (var c in categories)
+    {
+        <a class="btn btn-outline-restaurant @(selectedCategoryId == c.CategoryId ? "active" : "")"
+           asp-action="Index" asp-route-categoryId="@c.CategoryId">@c.Name</a>
+    }
+</div>
+
+@if (!Model.Any())
+{
+    <p>Không có món ăn nào trong danh mục này.</p>
+}
+else
+{
+    <div class="row g-4">
+        @foreach (var dish in Model)
+        {
+            <div class="col-6 col-md-4 col-lg-3">
+                <div class="menu-card">
+                    <img src="@(string.IsNullOrEmpty(dish.ImageUrl) ? "https://res.cloudinary.com/demo/image/upload/w_400,h_300,c_fill/sample.jpg" : dish.ImageUrl)" alt="@dish.Name" />
+                    <div class="card-body">
+                        <div class="small text-muted">@dish.Category?.Name</div>
+                        <h6 class="mb-1">@dish.Name</h6>
+                        <div class="menu-price mb-2">@dish.Price.ToString("N0") đ</div>
+                        <a asp-action="Details" asp-route-id="@dish.DishId" class="btn btn-sm btn-restaurant-dark w-100">Xem chi tiết</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

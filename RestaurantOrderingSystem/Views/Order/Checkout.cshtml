@@ -1,0 +1,91 @@
+@model CheckoutViewModel
+@{
+    ViewData["Title"] = "Đặt món";
+}
+<style>
+    .checkout-form {
+        background-color: white;
+        border: 1px solid gainsboro;
+        border-radius: 10px;
+        padding: 1.5rem;
+    }
+
+    .checkout-summary {
+        background-color: white;
+        border: 2px solid darkblue;
+        border-radius: 10px;
+        padding: 1.5rem;
+    }
+
+    .checkout-summary h5 {
+        color: darkblue;
+    }
+
+    .checkout-summary .total-line {
+        color: orange;
+        font-weight: 700;
+        font-size: 1.25rem;
+    }
+
+    .checkout-form label {
+        font-weight: 600;
+        color: darkblue;
+    }
+</style>
+
+<h2 class="mb-4" style="color:darkblue;">Thông tin đặt món</h2>
+
+<div class="row g-4">
+    <div class="col-md-7">
+        <div class="checkout-form">
+            <form asp-controller="Order" asp-action="Checkout" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="mb-3">
+                    <label asp-for="CustomerName"></label>
+                    <input asp-for="CustomerName" class="form-control" placeholder="Nhập họ tên..." />
+                    <span asp-validation-for="CustomerName" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="PhoneNumber"></label>
+                    <input asp-for="PhoneNumber" class="form-control" placeholder="Nhập số điện thoại..." />
+                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="TableNumber"></label>
+                    <input asp-for="TableNumber" class="form-control" placeholder="Ví dụ: Bàn 05 (có thể để trống nếu đặt mang về)" />
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Note"></label>
+                    <textarea asp-for="Note" class="form-control" rows="3" placeholder="Ghi chú thêm cho nhà hàng..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-restaurant-primary">Xác nhận đặt món</button>
+                <a asp-controller="Cart" asp-action="Index" class="btn btn-outline-secondary">Quay lại giỏ hàng</a>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-md-5">
+        <div class="checkout-summary">
+            <h5>Tóm tắt đơn hàng</h5>
+            <ul class="list-group list-group-flush mb-3">
+                @foreach (var item in Model.Items)
+                {
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>@item.DishName x @item.Quantity</span>
+                        <span>@item.SubTotal.ToString("N0") đ</span>
+                    </li>
+                }
+            </ul>
+            <div class="d-flex justify-content-between total-line">
+                <span>Tổng cộng:</span>
+                <span>@Model.GrandTotal.ToString("N0") đ</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

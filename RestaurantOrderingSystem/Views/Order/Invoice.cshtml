@@ -1,0 +1,109 @@
+@model Order
+@{
+    ViewData["Title"] = "Hóa đơn " + Model.OrderCode;
+}
+<style>
+    .invoice-box {
+        background-color: white;
+        border: 1px solid gainsboro;
+        border-radius: 10px;
+        padding: 2rem;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .invoice-header {
+        border-bottom: 3px solid orange;
+        padding-bottom: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .invoice-header h2 {
+        color: darkblue;
+        margin-bottom: 0.25rem;
+    }
+
+    .invoice-code {
+        color: orange;
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    .invoice-table th {
+        background-color: darkblue;
+        color: white;
+    }
+
+    .invoice-total-row td {
+        font-weight: 700;
+        color: orange;
+        font-size: 1.15rem;
+    }
+
+    .status-badge {
+        padding: 0.35rem 0.75rem;
+        border-radius: 20px;
+        color: white;
+        font-weight: 600;
+    }
+
+    .status-Pending { background-color: dimgray; }
+    .status-Confirmed { background-color: steelblue; }
+    .status-Paid { background-color: seagreen; }
+    .status-Cancelled { background-color: firebrick; }
+</style>
+
+<div class="invoice-box">
+    <div class="invoice-header d-flex justify-content-between align-items-start flex-wrap">
+        <div>
+            <h2>Nhà Hàng Online</h2>
+            <div class="text-muted">Hóa đơn đặt món</div>
+        </div>
+        <div class="text-end">
+            <div class="invoice-code">Mã hóa đơn: @Model.OrderCode</div>
+            <div>Ngày đặt: @Model.OrderDate.ToString("HH:mm dd/MM/yyyy")</div>
+            <span class="status-badge status-@Model.Status">@Model.Status</span>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <strong>Khách hàng:</strong> @Model.CustomerName<br />
+            <strong>Điện thoại:</strong> @Model.PhoneNumber
+        </div>
+        <div class="col-md-6">
+            <strong>Số bàn:</strong> @(string.IsNullOrEmpty(Model.TableNumber) ? "Mang về" : Model.TableNumber)<br />
+            <strong>Ghi chú:</strong> @(string.IsNullOrEmpty(Model.Note) ? "(không có)" : Model.Note)
+        </div>
+    </div>
+
+    <table class="table table-bordered invoice-table">
+        <thead>
+            <tr>
+                <th>Món ăn</th>
+                <th class="text-end">Đơn giá</th>
+                <th class="text-center">Số lượng</th>
+                <th class="text-end">Thành tiền</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var detail in Model.OrderDetails ?? Enumerable.Empty<OrderDetail>())
+            {
+                <tr>
+                    <td>@detail.DishName</td>
+                    <td class="text-end">@detail.UnitPrice.ToString("N0") đ</td>
+                    <td class="text-center">@detail.Quantity</td>
+                    <td class="text-end">@detail.SubTotal.ToString("N0") đ</td>
+                </tr>
+            }
+            <tr class="invoice-total-row">
+                <td colspan="3" class="text-end">Tổng cộng:</td>
+                <td class="text-end">@Model.TotalAmount.ToString("N0") đ</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="d-flex gap-2 mt-3">
+        <a asp-controller="Menu" asp-action="Index" class="btn btn-restaurant-primary">Đặt thêm món khác</a>
+    </div>
+</div>

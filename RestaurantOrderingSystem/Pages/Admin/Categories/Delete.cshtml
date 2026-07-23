@@ -1,0 +1,29 @@
+@page "{id:int}"
+@model RestaurantOrderingSystem.Pages.Admin.Categories.DeleteModel
+@{
+    ViewData["Title"] = "Xóa danh mục";
+}
+<style>
+    .admin-form {
+        max-width: 600px;
+        background-color: white;
+        border: 2px solid firebrick;
+        border-radius: 10px;
+        padding: 1.5rem;
+    }
+</style>
+
+<h2 style="color:darkblue;">Xác nhận xóa danh mục</h2>
+
+<div class="admin-form">
+    @if (Model.ErrorMessage != null)
+    {
+        <p class="text-danger fw-bold">@Model.ErrorMessage</p>
+    }
+    <p>Bạn có chắc muốn xóa danh mục <strong>@Model.Category.Name</strong>?</p>
+    <form method="post">
+        <input type="hidden" asp-for="Category.CategoryId" />
+        <button type="submit" class="btn btn-danger">Xóa</button>
+        <a asp-page="Index" class="btn btn-outline-secondary">Hủy</a>
+    </form>
+</div>

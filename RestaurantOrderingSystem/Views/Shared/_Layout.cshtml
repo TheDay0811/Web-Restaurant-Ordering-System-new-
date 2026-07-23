@@ -1,0 +1,197 @@
+@{
+    // _Layout.cshtml duoc dung chung cho MOI trang, nen doc truc tiep gio hang
+    // tu Session o day de hien so luong (badge) tren icon Gio hang trong navbar,
+    // khong can Controller nao truyen du lieu nay xuong.
+    // Gio hang duoc luu don gian: moi mon an la 1 key rieng trong Session dang
+    // "cart_{DishId}" = so luong (xem CartController de biet chi tiet cach luu).
+    int cartCount = 0;
+    foreach (var key in Context.Session.Keys)
+    {
+        if (key.StartsWith("cart_"))
+        {
+            cartCount += Context.Session.GetInt32(key) ?? 0;
+        }
+    }
+
+    // Dua vao 3 co gia tri nay de an/hien cac muc trong menu diieu huong
+    // cho dung voi tung vai tro (xem phan <ul class="navbar-nav"> ben duoi)
+    bool isAdmin = User.IsInRole(UserRole.Admin);
+    bool isCustomer = User.IsInRole(UserRole.Customer);
+    bool isAuthenticated = User.Identity != null && User.Identity.IsAuthenticated;
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Nhà Hàng HUFLIT</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <!--
+        Bang mau chu dao cua toan trang (khai bao truc tiep bang ten mau CSS,
+        khong dung bien --var, de moi file .cshtml doc lap, de doc, de sua):
+        darkblue : mau chinh - navbar, tieu de, khung
+        orange   : mau nhan manh - nut bam, gia tien, badge
+        white / whitesmoke : nen
+    -->
+    <style>
+        body {
+            background-color: whitesmoke;
+            font-family: "Segoe UI", Tahoma, sans-serif;
+            padding-bottom: 60px;
+        }
+
+        .navbar-brand-restaurant {
+            background-color: darkblue;
+        }
+
+        .navbar-brand-restaurant .navbar-brand,
+        .navbar-brand-restaurant .nav-link {
+            color: white !important;
+            font-weight: 500;
+        }
+
+        .navbar-brand-restaurant .nav-link:hover {
+            color: orange !important;
+        }
+
+        .navbar-brand-restaurant .navbar-brand {
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .btn-restaurant-primary {
+            background-color: orange;
+            border-color: orange;
+            color: white;
+            font-weight: 600;
+        }
+
+        .btn-restaurant-primary:hover {
+            background-color: darkorange;
+            border-color: darkorange;
+            color: white;
+        }
+
+        .btn-restaurant-dark {
+            background-color: darkblue;
+            border-color: darkblue;
+            color: white;
+            font-weight: 600;
+        }
+
+        .btn-restaurant-dark:hover {
+            background-color: midnightblue;
+            border-color: midnightblue;
+            color: white;
+        }
+
+        .badge-cart-count {
+            background-color: orange;
+            color: white;
+        }
+
+        footer.site-footer {
+            background-color: darkblue;
+            color: white;
+            padding: 1rem 0;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-brand-restaurant mb-4">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">Nhà Hàng HUFLIT</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="mainNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">Trang chủ</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Menu" asp-action="Index">Thực đơn</a>
+                        </li>
+                        @if (isAdmin)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-page="/Admin/Dishes/Index">Quản lý món ăn</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-page="/Admin/Categories/Index">Quản lý danh mục</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Order" asp-action="History">Hóa đơn</a>
+                            </li>
+                        }
+                    </ul>
+                    <ul class="navbar-nav">
+                        @if (isCustomer)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Cart" asp-action="Index">
+                                    🛒 Giỏ hàng
+                                    @if (cartCount > 0)
+                                    {
+                                        <span class="badge rounded-pill badge-cart-count">@cartCount</span>
+                                    }
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Order" asp-action="MyOrders">Đơn hàng của tôi</a>
+                            </li>
+                        }
+                        @if (isAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <span class="nav-link">Xin chào, @User.FindFirst(System.Security.Claims.ClaimTypes.GivenName)?.Value</span>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Account" asp-action="Logout">Đăng xuất</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Account" asp-action="Register">Đăng ký</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Account" asp-action="Login">Đăng nhập</a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success">@TempData["Success"]</div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger">@TempData["Error"]</div>
+        }
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="site-footer text-center">
+        <small>Hệ thống đặt món nhà hàng HUFLIT</small>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

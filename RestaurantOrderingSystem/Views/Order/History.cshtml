@@ -1,0 +1,73 @@
+@model IEnumerable<Order>
+@{
+    ViewData["Title"] = "Quản lý hóa đơn";
+}
+<style>
+    .history-table th {
+        background-color: darkblue;
+        color: white;
+    }
+
+    .status-select {
+        min-width: 140px;
+    }
+
+    .total-cell {
+        color: orange;
+        font-weight: 700;
+    }
+</style>
+
+<h2 class="mb-3" style="color:darkblue;">Danh sách hóa đơn</h2>
+
+@if (!Model.Any())
+{
+    <p>Chưa có hóa đơn nào.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-bordered align-middle history-table">
+            <thead>
+                <tr>
+                    <th>Mã HĐ</th>
+                    <th>Khách hàng</th>
+                    <th>SĐT</th>
+                    <th>Bàn</th>
+                    <th>Ngày đặt</th>
+                    <th>Tổng tiền</th>
+                    <th>Trạng thái</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var order in Model)
+                {
+                    <tr>
+                        <td>@order.OrderCode</td>
+                        <td>@order.CustomerName</td>
+                        <td>@order.PhoneNumber</td>
+                        <td>@(string.IsNullOrEmpty(order.TableNumber) ? "Mang về" : order.TableNumber)</td>
+                        <td>@order.OrderDate.ToString("HH:mm dd/MM/yyyy")</td>
+                        <td class="total-cell">@order.TotalAmount.ToString("N0") đ</td>
+                        <td>
+                            <form asp-controller="Order" asp-action="UpdateStatus" method="post" class="d-flex gap-1">
+                                <input type="hidden" name="id" value="@order.OrderId" />
+                                <select name="status" class="form-select form-select-sm status-select">
+                                    @foreach (OrderStatus s in Enum.GetValues(typeof(OrderStatus)))
+                                    {
+                                        <option value="@s" selected="@(s == order.Status)">@s</option>
+                                    }
+                                </select>
+                                <button type="submit" class="btn btn-sm btn-restaurant-dark">Lưu</button>
+                            </form>
+                        </td>
+                        <td>
+                            <a asp-controller="Order" asp-action="Invoice" asp-route-id="@order.OrderId" class="btn btn-sm btn-restaurant-primary">Xem hóa đơn</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
