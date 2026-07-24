@@ -2,95 +2,123 @@
 @{
     ViewData["Title"] = "Giỏ hàng";
     decimal total = Model.Sum(i => i.SubTotal);
+    int itemCount = Model.Sum(i => i.Quantity);
 }
-<style>
-    .cart-table th {
-        background-color: darkblue;
-        color: white;
-    }
 
-    .cart-thumb {
-        width: 60px;
-        height: 60px;
-        object-fit: cover;
-        border-radius: 6px;
-    }
-
-    .cart-total-box {
-        background-color: white;
-        border: 2px solid orange;
-        border-radius: 10px;
-        padding: 1rem 1.5rem;
-        text-align: right;
-    }
-
-    .cart-total-box .total-amount {
-        color: orange;
-        font-size: 1.5rem;
-        font-weight: 700;
-    }
-
-    .qty-input {
-        width: 70px;
-    }
-</style>
-
-<h2 class="mb-3" style="color:darkblue;">Giỏ hàng của bạn</h2>
+<h1 class="font-display-lg text-display-lg text-on-background mb-xs">Giỏ hàng của bạn</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-lg">Xem lại món ăn trước khi tiến hành đặt món.</p>
 
 @if (!Model.Any())
 {
-    <p>Giỏ hàng đang trống. <a asp-controller="Menu" asp-action="Index">Xem thực đơn</a> để chọn món nhé.</p>
+    <p class="font-body-lg text-body-lg text-on-surface-variant">
+        Giỏ hàng đang trống.
+        <a class="text-primary hover:underline" asp-controller="Menu" asp-action="Index">Xem thực đơn</a> để chọn món nhé.
+    </p>
 }
 else
 {
-    <div class="table-responsive">
-        <table class="table table-bordered align-middle cart-table">
-            <thead>
-                <tr>
-                    <th>Ảnh</th>
-                    <th>Món ăn</th>
-                    <th>Đơn giá</th>
-                    <th>Số lượng</th>
-                    <th>Thành tiền</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td><img class="cart-thumb" src="@(string.IsNullOrEmpty(item.ImageUrl) ? "https://res.cloudinary.com/demo/image/upload/w_100,h_100,c_fill/sample.jpg" : item.ImageUrl)" alt="@item.DishName" /></td>
-                        <td>@item.DishName</td>
-                        <td>@item.Price.ToString("N0") đ</td>
-                        <td>
-                            <form asp-controller="Cart" asp-action="UpdateQuantity" method="post" class="d-flex gap-1">
-                                <input type="hidden" name="dishId" value="@item.DishId" />
-                                <input type="number" name="quantity" value="@item.Quantity" min="1" class="form-control qty-input" />
-                                <button type="submit" class="btn btn-sm btn-restaurant-dark">Cập nhật</button>
-                            </form>
-                        </td>
-                        <td>@item.SubTotal.ToString("N0") đ</td>
-                        <td>
-                            <form asp-controller="Cart" asp-action="Remove" method="post">
-                                <input type="hidden" name="dishId" value="@item.DishId" />
-                                <button type="submit" class="btn btn-sm btn-outline-danger">Xóa</button>
-                            </form>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
 
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-        <form asp-controller="Cart" asp-action="Clear" method="post">
-            <button type="submit" class="btn btn-outline-secondary">Xóa toàn bộ giỏ hàng</button>
-        </form>
+        <!-- Bảng giỏ hàng -->
+        <div class="lg:col-span-8 bg-surface-container-lowest border border-outline-variant rounded-lg overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="bg-surface-container-low">
+                            <th class="font-label-md text-label-md uppercase text-on-surface-variant text-left px-md py-sm" colspan="2">Món ăn</th>
+                            <th class="font-label-md text-label-md uppercase text-on-surface-variant text-left px-md py-sm">Đơn giá</th>
+                            <th class="font-label-md text-label-md uppercase text-on-surface-variant text-center px-md py-sm">Số lượng</th>
+                            <th class="font-label-md text-label-md uppercase text-on-surface-variant text-right px-md py-sm">Thành tiền</th>
+                            <th class="px-md py-sm"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr class="border-t border-outline-variant hover:bg-primary-fixed/10 transition-colors align-middle">
+                                <td class="pl-md py-sm w-20">
+                                    <img class="w-16 h-16 object-cover rounded-lg border border-outline-variant"
+                                         src="@(string.IsNullOrEmpty(item.ImageUrl) ? "https://res.cloudinary.com/demo/image/upload/w_100,h_100,c_fill/sample.jpg" : item.ImageUrl)"
+                                         alt="@item.DishName" />
+                                </td>
+                                <td class="py-sm pr-md">
+                                    <div class="font-title-md text-title-md text-on-surface">@item.DishName</div>
+                                </td>
+                                <td class="px-md py-sm font-body-sm text-body-sm text-secondary font-bold whitespace-nowrap">@item.Price.ToString("N0") đ</td>
+                                <td class="px-md py-sm">
+                                    <form asp-controller="Cart" asp-action="UpdateQuantity" method="post" class="cart-qty-form flex items-center justify-center gap-2">
+                                        <input type="hidden" name="dishId" value="@item.DishId" />
+                                        <button type="button" onclick="stepQty(this, -1)"
+                                                class="w-8 h-8 flex items-center justify-center rounded border border-outline-variant text-on-surface hover:bg-surface-variant transition-colors">
+                                            −
+                                        </button>
+                                        <input type="number" name="quantity" value="@item.Quantity" min="1"
+                                               class="cart-qty-input w-12 text-center rounded border border-outline-variant px-1 py-1 focus:outline-none focus:border-primary"
+                                               onchange="this.form.submit()" />
+                                        <button type="button" onclick="stepQty(this, 1)"
+                                                class="w-8 h-8 flex items-center justify-center rounded border border-outline-variant text-on-surface hover:bg-surface-variant transition-colors">
+                                            +
+                                        </button>
+                                    </form>
+                                </td>
+                                <td class="px-md py-sm font-title-md text-title-md text-on-surface font-bold text-right whitespace-nowrap">@item.SubTotal.ToString("N0") đ</td>
+                                <td class="pr-md py-sm text-right">
+                                    <form asp-controller="Cart" asp-action="Remove" method="post">
+                                        <input type="hidden" name="dishId" value="@item.DishId" />
+                                        <button type="submit" aria-label="Xóa món"
+                                                class="w-8 h-8 inline-flex items-center justify-center rounded-full text-on-surface-variant hover:text-error hover:bg-error-container transition-colors">
+                                            <span class="material-symbols-outlined text-lg">delete</span>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
 
-        <div class="cart-total-box">
-            <div>Tổng cộng:</div>
-            <div class="total-amount">@total.ToString("N0") đ</div>
-            <a asp-controller="Order" asp-action="Checkout" class="btn btn-restaurant-primary mt-2">Tiến hành đặt món</a>
+            <div class="border-t border-outline-variant px-md py-sm">
+                <form asp-controller="Cart" asp-action="Clear" method="post">
+                    <button type="submit" class="flex items-center gap-1 font-label-md text-label-md text-error hover:underline">
+                        <span class="material-symbols-outlined text-base">delete_sweep</span>
+                        Xóa toàn bộ giỏ hàng
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="lg:col-span-4">
+            <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-md sticky top-20">
+                <h2 class="font-title-md text-title-md text-on-background mb-sm pb-sm border-b border-outline-variant">Tóm tắt đơn hàng</h2>
+
+                <div class="flex justify-between font-body-sm text-body-sm text-on-surface-variant py-1">
+                    <span>Tạm tính (@itemCount món)</span>
+                    <span>@total.ToString("N0") đ</span>
+                </div>
+
+                <div class="flex justify-between font-title-md text-title-md text-on-background font-bold border-t border-outline-variant mt-sm pt-sm">
+                    <span>Tổng cộng</span>
+                    <span class="text-secondary">@total.ToString("N0") đ</span>
+                </div>
+
+                <a asp-controller="Order" asp-action="Checkout"
+                   class="mt-md w-full flex items-center justify-center gap-2 px-4 py-3 rounded font-label-md text-label-md bg-secondary text-white hover:bg-secondary/90 transition-colors">
+                    Tiến hành đặt món
+                    <span class="material-symbols-outlined text-base">arrow_forward</span>
+                </a>
+            </div>
         </div>
     </div>
 }
+
+<script>
+    function stepQty(button, delta) {
+        const form = button.closest('form');
+        const input = form.querySelector('.cart-qty-input');
+        let value = parseInt(input.value || '1', 10) + delta;
+        if (value < 1) value = 1;
+        input.value = value;
+        form.submit();
+    }
+</script>

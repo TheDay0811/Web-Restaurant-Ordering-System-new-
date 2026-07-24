@@ -16,7 +16,17 @@ html {
 body {
   margin-bottom: 60px;
 }
+/* Ẩn mũi tên spinner trên input số - Chrome, Safari, Edge (WebKit) */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
 
+/* Ẩn mũi tên spinner trên input số - Firefox */
+input[type="number"] {
+    -moz-appearance: textfield;
+}
 /* Cac class dung rieng cho tung trang duoc dat truc tiep trong tho the <style>
    cua file .cshtml tuong ung (Layout, Home, Menu, Cart, Order, Account, Admin...)
    de de doc va de bao tri theo tung man hinh. File site.css nay chi chua

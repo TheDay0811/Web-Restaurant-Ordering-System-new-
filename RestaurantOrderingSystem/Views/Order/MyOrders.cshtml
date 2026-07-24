@@ -1,63 +1,56 @@
 @model IEnumerable<Order>
 @{
     ViewData["Title"] = "Đơn hàng của tôi";
+
+    string BadgeClass(OrderStatus s) => s switch
+    {
+        OrderStatus.Pending => "bg-secondary-container/40 text-on-secondary-container",
+        OrderStatus.Confirmed => "bg-primary-fixed text-on-primary-fixed-variant",
+        OrderStatus.Paid => "bg-tertiary-fixed text-on-tertiary-fixed-variant",
+        OrderStatus.Cancelled => "bg-error-container text-on-error-container",
+        _ => "bg-surface-variant text-on-surface-variant"
+    };
 }
-<style>
-    .my-orders-table th {
-        background-color: darkblue;
-        color: white;
-    }
 
-    .total-cell {
-        color: orange;
-        font-weight: 700;
-    }
-
-    .status-badge {
-        padding: 0.3rem 0.7rem;
-        border-radius: 20px;
-        color: white;
-        font-weight: 600;
-        font-size: 0.85rem;
-    }
-
-    .status-Pending { background-color: dimgray; }
-    .status-Confirmed { background-color: steelblue; }
-    .status-Paid { background-color: seagreen; }
-    .status-Cancelled { background-color: firebrick; }
-</style>
-
-<h2 class="mb-3" style="color:darkblue;">Đơn hàng của tôi</h2>
+<h1 class="font-headline-lg text-headline-lg text-on-background mb-md">Đơn hàng của tôi</h1>
 
 @if (!Model.Any())
 {
-    <p>Bạn chưa đặt món nào. <a asp-controller="Menu" asp-action="Index">Xem thực đơn</a> để đặt món nhé.</p>
+    <p class="font-body-lg text-body-lg text-on-surface-variant">
+        Bạn chưa đặt món nào.
+        <a class="text-primary hover:underline" asp-controller="Menu" asp-action="Index">Xem thực đơn</a> để đặt món nhé.
+    </p>
 }
 else
 {
-    <div class="table-responsive">
-        <table class="table table-bordered align-middle my-orders-table">
+    <div class="overflow-x-auto rounded-lg border border-outline-variant">
+        <table class="w-full bg-surface-container-lowest">
             <thead>
-                <tr>
-                    <th>Mã HĐ</th>
-                    <th>Ngày đặt</th>
-                    <th>Bàn</th>
-                    <th>Tổng tiền</th>
-                    <th>Trạng thái</th>
-                    <th></th>
+                <tr class="bg-surface-container-low">
+                    <th class="font-label-md text-label-md uppercase text-on-surface-variant text-left px-md py-sm">Mã HĐ</th>
+                    <th class="font-label-md text-label-md uppercase text-on-surface-variant text-left px-md py-sm">Ngày đặt</th>
+                    <th class="font-label-md text-label-md uppercase text-on-surface-variant text-left px-md py-sm">Bàn</th>
+                    <th class="font-label-md text-label-md uppercase text-on-surface-variant text-left px-md py-sm">Tổng tiền</th>
+                    <th class="font-label-md text-label-md uppercase text-on-surface-variant text-left px-md py-sm">Trạng thái</th>
+                    <th class="px-md py-sm"></th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var order in Model)
                 {
-                    <tr>
-                        <td>@order.OrderCode</td>
-                        <td>@order.OrderDate.ToString("HH:mm dd/MM/yyyy")</td>
-                        <td>@(string.IsNullOrEmpty(order.TableNumber) ? "Mang về" : order.TableNumber)</td>
-                        <td class="total-cell">@order.TotalAmount.ToString("N0") đ</td>
-                        <td><span class="status-badge status-@order.Status">@order.Status</span></td>
-                        <td>
-                            <a asp-controller="Order" asp-action="Invoice" asp-route-id="@order.OrderId" class="btn btn-sm btn-restaurant-primary">Xem hóa đơn</a>
+                    <tr class="border-t border-outline-variant hover:bg-primary-fixed/20 transition-colors">
+                        <td class="px-md py-sm font-body-sm text-body-sm text-on-surface">@order.OrderCode</td>
+                        <td class="px-md py-sm font-body-sm text-body-sm text-on-surface">@order.OrderDate.ToString("HH:mm dd/MM/yyyy")</td>
+                        <td class="px-md py-sm font-body-sm text-body-sm text-on-surface">@(string.IsNullOrEmpty(order.TableNumber) ? "Mang về" : order.TableNumber)</td>
+                        <td class="px-md py-sm font-body-sm text-body-sm text-secondary font-bold">@order.TotalAmount.ToString("N0") đ</td>
+                        <td class="px-md py-sm">
+                            <span class="inline-block px-2 py-1 rounded-full font-label-md text-label-md uppercase @BadgeClass(order.Status)">@order.Status</span>
+                        </td>
+                        <td class="px-md py-sm">
+                            <a asp-controller="Order" asp-action="Invoice" asp-route-id="@order.OrderId"
+                               class="px-3 py-1 rounded font-label-md text-label-md bg-primary text-white hover:bg-primary-container transition-colors">
+                                Xem hóa đơn
+                            </a>
                         </td>
                     </tr>
                 }

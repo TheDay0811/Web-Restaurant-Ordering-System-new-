@@ -18,180 +18,233 @@
     bool isAdmin = User.IsInRole(UserRole.Admin);
     bool isCustomer = User.IsInRole(UserRole.Customer);
     bool isAuthenticated = User.Identity != null && User.Identity.IsAuthenticated;
+
+    // So sanh voi controller/page dang duoc render de xac dinh muc nav nao dang active,
+    // tu do doi mau + gach chan cho dung trang hien tai (truoc day bi hard-code cung "Thuc don").
+    string currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    string currentPage = ViewContext.RouteData.Values["page"]?.ToString() ?? "";
+
+    string NavLinkClass(string controller) =>
+        currentController.Equals(controller, StringComparison.OrdinalIgnoreCase)
+            ? "text-white font-bold border-b-2 border-secondary-container pb-1 py-1 transition-all duration-200"
+            : "text-on-primary-fixed-variant hover:text-white border-b-2 border-transparent pb-1 py-1 transition-all duration-200";
+
+    string MobileNavLinkClass(string controller) =>
+        currentController.Equals(controller, StringComparison.OrdinalIgnoreCase)
+            ? "text-primary font-bold font-label-md text-label-md py-2 border-b border-surface-variant transition-colors duration-200"
+            : "text-on-surface font-label-md text-label-md py-2 border-b border-surface-variant transition-colors duration-200";
 }
 <!DOCTYPE html>
-<html lang="vi">
+<html class="light" lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Nhà Hàng HUFLIT</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    @* ===== Design system "Academic Hospitality" (Stitch) - Tailwind qua CDN ===== *@
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script id="tailwind-config">
+            tailwind.config = {
+                darkMode: "class",
+                theme: {
+                    extend: {
+                        colors: {
+                            "inverse-on-surface": "#f0f1f2", "on-primary-container": "#8aa4ff", "on-background": "#191c1d",
+                            "tertiary-fixed-dim": "#7adaa1", "on-error-container": "#93000a", "on-secondary": "#ffffff",
+                            "surface": "#f8f9fa", "on-primary": "#ffffff", "tertiary-container": "#004729",
+                            "on-tertiary-fixed": "#002110", "on-secondary-fixed-variant": "#6e3900", "tertiary": "#002e19",
+                            "surface-tint": "#3557bc", "on-surface": "#191c1d", "surface-variant": "#e1e3e4",
+                            "surface-container-lowest": "#ffffff", "primary-fixed-dim": "#b5c4ff", "surface-container-low": "#f3f4f5",
+                            "inverse-primary": "#b5c4ff", "on-surface-variant": "#444653", "on-secondary-fixed": "#2f1500",
+                            "surface-container-high": "#e7e8e9", "outline": "#747684", "primary": "#002068",
+                            "primary-fixed": "#dce1ff", "surface-bright": "#f8f9fa", "on-tertiary-fixed-variant": "#005230",
+                            "on-secondary-container": "#713b00", "secondary-fixed-dim": "#ffb77d", "background": "#f8f9fa",
+                            "surface-container": "#edeeef", "surface-dim": "#d9dadb", "primary-container": "#003399",
+                            "surface-container-highest": "#e1e3e4", "secondary-fixed": "#ffdcc3", "on-tertiary-container": "#5aba84",
+                            "inverse-surface": "#2e3132", "on-tertiary": "#ffffff", "outline-variant": "#c4c5d5",
+                            "on-primary-fixed-variant": "#153ea3", "on-error": "#ffffff", "error": "#ba1a1a",
+                            "secondary-container": "#ffa454", "on-primary-fixed": "#00164e", "error-container": "#ffdad6",
+                            "tertiary-fixed": "#95f7bb", "secondary": "#904d00"
+                        },
+                        borderRadius: { DEFAULT: "0.125rem", lg: "0.25rem", xl: "0.5rem", full: "0.75rem" },
+                        spacing: { xs: "4px", lg: "48px", gutter: "24px", "margin-mobile": "16px", md: "24px", "margin-desktop": "64px", sm: "12px", base: "8px" },
+                        fontFamily: {
+                            "headline-lg": ["Inter"], "body-lg": ["Inter"], "display-lg": ["Inter"],
+                            "title-md": ["Inter"], "label-md": ["Inter"], "headline-lg-mobile": ["Inter"], "body-sm": ["Inter"]
+                        },
+                        fontSize: {
+                            "headline-lg": ["32px", { lineHeight: "40px", letterSpacing: "-0.01em", fontWeight: "600" }],
+                            "body-lg": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+                            "display-lg": ["48px", { lineHeight: "56px", letterSpacing: "-0.02em", fontWeight: "700" }],
+                            "headline-lg-mobile": ["24px", { lineHeight: "32px", fontWeight: "600" }],
+                            "title-md": ["20px", { lineHeight: "28px", fontWeight: "600" }],
+                            "label-md": ["12px", { lineHeight: "16px", fontWeight: "600", letterSpacing: "0.05em" }],
+                            "body-sm": ["14px", { lineHeight: "20px", fontWeight: "400" }]
+                        }
+                    }
+                }
+            }
+    </script>
+    <style>
+            .material-symbols-outlined {
+                font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            }
+    </style>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
-<body>
-    <!--
-        Bang mau chu dao cua toan trang (khai bao truc tiep bang ten mau CSS,
-        khong dung bien --var, de moi file .cshtml doc lap, de doc, de sua):
-        darkblue : mau chinh - navbar, tieu de, khung
-        orange   : mau nhan manh - nut bam, gia tien, badge
-        white / whitesmoke : nen
-    -->
-    <style>
-        body {
-            background-color: whitesmoke;
-            font-family: "Segoe UI", Tahoma, sans-serif;
-            padding-bottom: 60px;
-        }
+<body class="bg-background text-on-background font-body-lg antialiased flex flex-col min-h-screen">
 
-        .navbar-brand-restaurant {
-            background-color: darkblue;
-        }
-
-        .navbar-brand-restaurant .navbar-brand,
-        .navbar-brand-restaurant .nav-link {
-            color: white !important;
-            font-weight: 500;
-        }
-
-        .navbar-brand-restaurant .nav-link:hover {
-            color: orange !important;
-        }
-
-        .navbar-brand-restaurant .navbar-brand {
-            font-size: 1.4rem;
-            font-weight: 700;
-        }
-
-        .btn-restaurant-primary {
-            background-color: orange;
-            border-color: orange;
-            color: white;
-            font-weight: 600;
-        }
-
-        .btn-restaurant-primary:hover {
-            background-color: darkorange;
-            border-color: darkorange;
-            color: white;
-        }
-
-        .btn-restaurant-dark {
-            background-color: darkblue;
-            border-color: darkblue;
-            color: white;
-            font-weight: 600;
-        }
-
-        .btn-restaurant-dark:hover {
-            background-color: midnightblue;
-            border-color: midnightblue;
-            color: white;
-        }
-
-        .badge-cart-count {
-            background-color: orange;
-            color: white;
-        }
-
-        footer.site-footer {
-            background-color: darkblue;
-            color: white;
-            padding: 1rem 0;
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-        }
-    </style>
-
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-brand-restaurant mb-4">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-controller="Home" asp-action="Index">Nhà Hàng HUFLIT</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="mainNav">
-                    <ul class="navbar-nav me-auto">
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Index">Trang chủ</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Menu" asp-action="Index">Thực đơn</a>
-                        </li>
-                        @if (isAdmin)
+    @* ===== TopNavBar (theo thiết kế Stitch, gắn logic phân quyền thật của hệ thống) ===== *@
+    <header class="bg-primary text-on-primary font-label-md text-label-md flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop h-16 sticky top-0 z-50 border-b border-outline-variant shadow-sm transition-all duration-200">
+        <div class="flex items-center gap-md">
+            <a class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg font-bold text-white whitespace-nowrap" asp-controller="Home" asp-action="Index">
+                Nhà Hàng HUFLIT
+            </a>
+            <nav class="hidden md:flex gap-md">
+                <a class="@NavLinkClass("Home")" asp-controller="Home" asp-action="Index">Trang chủ</a>
+                <a class="@NavLinkClass("Menu")" asp-controller="Menu" asp-action="Index">Thực đơn</a>
+                @if (isAdmin)
+                {
+                    <a class="@(currentPage.StartsWith("/Admin/Dishes") ? "text-white font-bold border-b-2 border-secondary-container pb-1 py-1 transition-all duration-200" : "text-on-primary-fixed-variant hover:text-white border-b-2 border-transparent pb-1 py-1 transition-all duration-200")" asp-area="" asp-page="/Admin/Dishes/Index">Món ăn</a>
+                    <a class="@(currentPage.StartsWith("/Admin/Categories") ? "text-white font-bold border-b-2 border-secondary-container pb-1 py-1 transition-all duration-200" : "text-on-primary-fixed-variant hover:text-white border-b-2 border-transparent pb-1 py-1 transition-all duration-200")" asp-area="" asp-page="/Admin/Categories/Index">Danh mục</a>
+                    <a class="@NavLinkClass("Order")" asp-controller="Order" asp-action="History">Hóa đơn</a>
+                }
+                @if (isCustomer)
+                {
+                    <a class="@NavLinkClass("Order")" asp-controller="Order" asp-action="MyOrders">Đơn hàng của tôi</a>
+                }
+            </nav>
+        </div>
+        <div class="flex items-center gap-sm">
+            <div class="flex items-center gap-sm hidden md:flex">
+                @if (isCustomer)
+                {
+                    <a aria-label="shopping_cart" class="relative flex items-center justify-center p-2 rounded-full hover:bg-primary-container transition-all duration-200 active:scale-95" asp-controller="Cart" asp-action="Index">
+                        <span class="material-symbols-outlined">shopping_cart</span>
+                        @if (cartCount > 0)
                         {
-                            <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-page="/Admin/Dishes/Index">Quản lý món ăn</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-page="/Admin/Categories/Index">Quản lý danh mục</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Order" asp-action="History">Hóa đơn</a>
-                            </li>
+                            <span class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-secondary text-white text-[10px] font-bold flex items-center justify-center">@cartCount</span>
                         }
-                    </ul>
-                    <ul class="navbar-nav">
-                        @if (isCustomer)
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Cart" asp-action="Index">
-                                    🛒 Giỏ hàng
-                                    @if (cartCount > 0)
-                                    {
-                                        <span class="badge rounded-pill badge-cart-count">@cartCount</span>
-                                    }
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Order" asp-action="MyOrders">Đơn hàng của tôi</a>
-                            </li>
-                        }
-                        @if (isAuthenticated)
-                        {
-                            <li class="nav-item">
-                                <span class="nav-link">Xin chào, @User.FindFirst(System.Security.Claims.ClaimTypes.GivenName)?.Value</span>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Account" asp-action="Logout">Đăng xuất</a>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Account" asp-action="Register">Đăng ký</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Account" asp-action="Login">Đăng nhập</a>
-                            </li>
-                        }
-                    </ul>
-                </div>
+                    </a>
+                }
+                @if (isAuthenticated)
+                {
+                    <span class="flex items-center gap-1 px-2 text-white/90">
+                        <span class="material-symbols-outlined">account_circle</span>
+                        <span class="hidden lg:inline">@User.FindFirst(System.Security.Claims.ClaimTypes.GivenName)?.Value</span>
+                    </span>
+                }
             </div>
-        </nav>
+            <div class="hidden md:flex items-center gap-sm ml-sm">
+                @if (isAuthenticated)
+                {
+                    <a class="px-4 py-2 font-label-md text-label-md border border-white rounded text-white hover:bg-white/10 transition-colors" asp-controller="Account" asp-action="Logout">Đăng xuất</a>
+                }
+                else
+                {
+                    <a class="px-4 py-2 font-label-md text-label-md border border-white rounded text-white hover:bg-white/10 transition-colors" asp-controller="Account" asp-action="Login">Đăng nhập</a>
+                    <a class="px-4 py-2 font-label-md text-label-md bg-secondary text-white rounded hover:bg-secondary/90 transition-colors" asp-controller="Account" asp-action="Register">Đăng ký</a>
+                }
+            </div>
+            <button class="md:hidden p-2 rounded-full hover:bg-primary-container transition-all" id="mobile-menu-btn" type="button">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+        </div>
     </header>
 
-    <div class="container">
+    @* ===== Mobile Navigation Drawer ===== *@
+    <div class="fixed inset-0 bg-black/50 z-[60] hidden transition-opacity" id="mobile-nav">
+        <div class="absolute right-0 top-0 bottom-0 w-64 bg-surface p-margin-mobile flex flex-col gap-md transform translate-x-full transition-transform" id="mobile-nav-content">
+            <div class="flex justify-between items-center mb-sm">
+                <span class="font-title-md text-title-md font-bold text-primary">Menu</span>
+                <button class="p-2 rounded-full hover:bg-surface-variant transition-colors" id="close-mobile-nav" type="button">
+                    <span class="material-symbols-outlined text-on-surface">close</span>
+                </button>
+            </div>
+            <a class="@MobileNavLinkClass("Home")" asp-controller="Home" asp-action="Index">Trang chủ</a>
+            <a class="@MobileNavLinkClass("Menu")" asp-controller="Menu" asp-action="Index">Thực đơn</a>
+            @if (isCustomer)
+            {
+                <a class="text-on-surface font-label-md text-label-md py-2 border-b border-surface-variant flex justify-between items-center" asp-controller="Cart" asp-action="Index">
+                    Giỏ hàng
+                    @if (cartCount > 0)
+                    {
+                        <span class="min-w-[18px] h-[18px] px-1 rounded-full bg-secondary text-white text-[10px] font-bold flex items-center justify-center">@cartCount</span>
+                    }
+                </a>
+                <a class="text-on-surface font-label-md text-label-md py-2 border-b border-surface-variant" asp-controller="Order" asp-action="MyOrders">Đơn hàng của tôi</a>
+            }
+            @if (isAdmin)
+            {
+                <a class="text-on-surface font-label-md text-label-md py-2 border-b border-surface-variant" asp-area="" asp-page="/Admin/Dishes/Index">Quản lý món ăn</a>
+                <a class="text-on-surface font-label-md text-label-md py-2 border-b border-surface-variant" asp-area="" asp-page="/Admin/Categories/Index">Quản lý danh mục</a>
+                <a class="text-on-surface font-label-md text-label-md py-2 border-b border-surface-variant" asp-controller="Order" asp-action="History">Hóa đơn</a>
+            }
+            <div class="mt-auto flex flex-col gap-sm">
+                @if (isAuthenticated)
+                {
+                    <span class="text-center text-on-surface-variant text-body-sm">Xin chào, @User.FindFirst(System.Security.Claims.ClaimTypes.GivenName)?.Value</span>
+                    <a class="w-full text-center py-2 font-label-md text-label-md border border-primary text-primary rounded hover:bg-primary/5 transition-colors" asp-controller="Account" asp-action="Logout">Đăng xuất</a>
+                }
+                else
+                {
+                    <a class="w-full text-center py-2 font-label-md text-label-md border border-primary text-primary rounded hover:bg-primary/5 transition-colors" asp-controller="Account" asp-action="Login">Đăng nhập</a>
+                    <a class="w-full text-center py-2 font-label-md text-label-md bg-primary text-white rounded hover:bg-primary/90 transition-colors" asp-controller="Account" asp-action="Register">Đăng ký</a>
+                }
+            </div>
+        </div>
+    </div>
+
+    @* ===== Thông báo TempData ===== *@
+    <div class="w-full px-margin-mobile md:px-margin-desktop pt-md">
         @if (TempData["Success"] != null)
         {
-            <div class="alert alert-success">@TempData["Success"]</div>
+            <div class="mb-md px-4 py-3 rounded-lg bg-tertiary-fixed text-on-tertiary-fixed-variant font-body-sm text-body-sm">@TempData["Success"]</div>
         }
         @if (TempData["Error"] != null)
         {
-            <div class="alert alert-danger">@TempData["Error"]</div>
+            <div class="mb-md px-4 py-3 rounded-lg bg-error-container text-on-error-container font-body-sm text-body-sm">@TempData["Error"]</div>
         }
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
     </div>
 
-    <footer class="site-footer text-center">
-        <small>Hệ thống đặt món nhà hàng HUFLIT</small>
+    <main class="flex-grow w-full px-margin-mobile md:px-margin-desktop py-lg" role="main">
+        @RenderBody()
+    </main>
+
+    @* ===== Footer ===== *@
+    <footer class="bg-surface-container-highest text-on-surface-variant font-body-sm text-body-sm w-full py-base px-margin-mobile md:px-margin-desktop flex flex-col md:flex-row justify-between items-center border-t border-outline-variant gap-md">
+        <div class="flex flex-col md:flex-row items-center gap-sm md:gap-lg">
+            <span class="font-title-md text-title-md font-bold text-primary">Nhà Hàng HUFLIT</span>
+            <span>© 2026 Hệ thống đặt món nhà hàng HUFLIT.</span>
+        </div>
     </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+            // Mobile Navigation Toggle Logic
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mobileNav = document.getElementById('mobile-nav');
+            const mobileNavContent = document.getElementById('mobile-nav-content');
+            const closeMobileNavBtn = document.getElementById('close-mobile-nav');
+
+            function openMobileNav() {
+                mobileNav.classList.remove('hidden');
+                setTimeout(() => mobileNavContent.classList.remove('translate-x-full'), 10);
+            }
+            function closeMobileNav() {
+                mobileNavContent.classList.add('translate-x-full');
+                setTimeout(() => mobileNav.classList.add('hidden'), 300);
+            }
+            mobileMenuBtn?.addEventListener('click', openMobileNav);
+            closeMobileNavBtn?.addEventListener('click', closeMobileNav);
+            mobileNav?.addEventListener('click', (e) => { if (e.target === mobileNav) closeMobileNav(); });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

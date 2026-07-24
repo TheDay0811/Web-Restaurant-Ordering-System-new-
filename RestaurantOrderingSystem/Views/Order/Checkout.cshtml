@@ -2,83 +2,64 @@
 @{
     ViewData["Title"] = "Đặt món";
 }
-<style>
-    .checkout-form {
-        background-color: white;
-        border: 1px solid gainsboro;
-        border-radius: 10px;
-        padding: 1.5rem;
-    }
 
-    .checkout-summary {
-        background-color: white;
-        border: 2px solid darkblue;
-        border-radius: 10px;
-        padding: 1.5rem;
-    }
+<h1 class="font-headline-lg text-headline-lg text-on-background mb-lg">Thông tin đặt món</h1>
 
-    .checkout-summary h5 {
-        color: darkblue;
-    }
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+    <div class="md:col-span-7">
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-md">
+            <form asp-controller="Order" asp-action="Checkout" method="post" class="flex flex-col gap-md">
+                <div asp-validation-summary="ModelOnly" class="font-body-sm text-body-sm text-error"></div>
 
-    .checkout-summary .total-line {
-        color: orange;
-        font-weight: 700;
-        font-size: 1.25rem;
-    }
-
-    .checkout-form label {
-        font-weight: 600;
-        color: darkblue;
-    }
-</style>
-
-<h2 class="mb-4" style="color:darkblue;">Thông tin đặt món</h2>
-
-<div class="row g-4">
-    <div class="col-md-7">
-        <div class="checkout-form">
-            <form asp-controller="Order" asp-action="Checkout" method="post">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-                <div class="mb-3">
-                    <label asp-for="CustomerName"></label>
-                    <input asp-for="CustomerName" class="form-control" placeholder="Nhập họ tên..." />
-                    <span asp-validation-for="CustomerName" class="text-danger"></span>
+                <div>
+                    <label asp-for="CustomerName" class="block font-label-md text-label-md text-on-surface mb-xs"></label>
+                    <input asp-for="CustomerName" placeholder="Nhập họ tên..."
+                           class="w-full rounded border border-outline-variant px-3 py-2 focus:outline-none focus:border-primary" />
+                    <span asp-validation-for="CustomerName" class="font-body-sm text-body-sm text-error"></span>
                 </div>
-                <div class="mb-3">
-                    <label asp-for="PhoneNumber"></label>
-                    <input asp-for="PhoneNumber" class="form-control" placeholder="Nhập số điện thoại..." />
-                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                <div>
+                    <label asp-for="PhoneNumber" class="block font-label-md text-label-md text-on-surface mb-xs"></label>
+                    <input asp-for="PhoneNumber" placeholder="Nhập số điện thoại..."
+                           class="w-full rounded border border-outline-variant px-3 py-2 focus:outline-none focus:border-primary" />
+                    <span asp-validation-for="PhoneNumber" class="font-body-sm text-body-sm text-error"></span>
                 </div>
-                <div class="mb-3">
-                    <label asp-for="TableNumber"></label>
-                    <input asp-for="TableNumber" class="form-control" placeholder="Ví dụ: Bàn 05 (có thể để trống nếu đặt mang về)" />
+                <div>
+                    <label asp-for="TableNumber" class="block font-label-md text-label-md text-on-surface mb-xs"></label>
+                    <input asp-for="TableNumber" placeholder="Ví dụ: Bàn 05 (có thể để trống nếu đặt mang về)"
+                           class="w-full rounded border border-outline-variant px-3 py-2 focus:outline-none focus:border-primary" />
                 </div>
-                <div class="mb-3">
-                    <label asp-for="Note"></label>
-                    <textarea asp-for="Note" class="form-control" rows="3" placeholder="Ghi chú thêm cho nhà hàng..."></textarea>
+                <div>
+                    <label asp-for="Note" class="block font-label-md text-label-md text-on-surface mb-xs"></label>
+                    <textarea asp-for="Note" rows="3" placeholder="Ghi chú thêm cho nhà hàng..."
+                              class="w-full rounded border border-outline-variant px-3 py-2 focus:outline-none focus:border-primary"></textarea>
                 </div>
 
-                <button type="submit" class="btn btn-restaurant-primary">Xác nhận đặt món</button>
-                <a asp-controller="Cart" asp-action="Index" class="btn btn-outline-secondary">Quay lại giỏ hàng</a>
+                <div class="flex gap-sm">
+                    <button type="submit" class="px-4 py-2 rounded font-label-md text-label-md bg-secondary text-white hover:bg-secondary/90 transition-colors">
+                        Xác nhận đặt món
+                    </button>
+                    <a asp-controller="Cart" asp-action="Index"
+                       class="px-4 py-2 rounded font-label-md text-label-md border border-outline text-on-surface-variant hover:bg-surface-variant transition-colors">
+                        Quay lại giỏ hàng
+                    </a>
+                </div>
             </form>
         </div>
     </div>
 
-    <div class="col-md-5">
-        <div class="checkout-summary">
-            <h5>Tóm tắt đơn hàng</h5>
-            <ul class="list-group list-group-flush mb-3">
+    <div class="md:col-span-5">
+        <div class="bg-surface-container-lowest border border-primary-container rounded-lg p-md">
+            <h2 class="font-title-md text-title-md text-primary mb-sm">Tóm tắt đơn hàng</h2>
+            <ul class="flex flex-col divide-y divide-outline-variant mb-md">
                 @foreach (var item in Model.Items)
                 {
-                    <li class="list-group-item d-flex justify-content-between">
+                    <li class="flex justify-between py-2 font-body-sm text-body-sm text-on-surface">
                         <span>@item.DishName x @item.Quantity</span>
                         <span>@item.SubTotal.ToString("N0") đ</span>
                     </li>
                 }
             </ul>
-            <div class="d-flex justify-content-between total-line">
+            <div class="flex justify-between font-title-md text-title-md text-secondary font-bold border-t border-outline-variant pt-sm">
                 <span>Tổng cộng:</span>
                 <span>@Model.GrandTotal.ToString("N0") đ</span>
             </div>

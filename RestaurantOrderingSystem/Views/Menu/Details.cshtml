@@ -2,70 +2,108 @@
 @{
     ViewData["Title"] = Model.Name;
 }
-<style>
-    .detail-image {
-        width: 100%;
-        max-height: 420px;
-        object-fit: cover;
-        border-radius: 10px;
-        border: 1px solid gainsboro;
-    }
 
-    .detail-price {
-        color: orange;
-        font-size: 1.75rem;
-        font-weight: 700;
-    }
+<a asp-action="Index" class="inline-flex items-center gap-1 font-label-md text-label-md text-primary hover:underline mb-md">
+    <span class="material-symbols-outlined text-base">arrow_back</span>
+    Quay lại thực đơn
+</a>
 
-    .detail-category-badge {
-        background-color: darkblue;
-        color: white;
-    }
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-md md:p-lg">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+        <div>
+            <img class="w-full h-full max-h-[420px] object-cover rounded-lg border border-outline-variant"
+                 src="@(string.IsNullOrEmpty(Model.ImageUrl) ? "https://res.cloudinary.com/demo/image/upload/w_600,h_400,c_fill/sample.jpg" : Model.ImageUrl)"
+                 alt="@Model.Name" />
+        </div>
+        <div class="flex flex-col">
+            @if (Model.Category != null)
+            {
+                <span class="inline-block self-start px-2 py-1 mb-sm rounded font-label-md text-label-md bg-surface-container text-on-surface-variant">@Model.Category.Name</span>
+            }
+            <h1 class="font-headline-lg text-headline-lg text-on-background mb-sm">@Model.Name</h1>
 
-    .add-cart-form input[type="number"] {
-        max-width: 100px;
-    }
-</style>
+            <div class="flex items-baseline gap-1 mb-md">
+                <span class="text-secondary font-bold" style="font-size:40px;line-height:1;">@Model.Price.ToString("N0")</span>
+                <span class="font-label-md text-label-md text-on-surface-variant">VND</span>
+            </div>
 
-<div class="row g-4">
-    <div class="col-md-6">
-        <img class="detail-image" src="@(string.IsNullOrEmpty(Model.ImageUrl) ? "https://res.cloudinary.com/demo/image/upload/w_600,h_400,c_fill/sample.jpg" : Model.ImageUrl)" alt="@Model.Name" />
-    </div>
-    <div class="col-md-6">
-        <span class="badge detail-category-badge mb-2">@Model.Category?.Name</span>
-        <h2>@Model.Name</h2>
-        <p class="text-muted">@Model.Description</p>
-        <div class="detail-price mb-3">@Model.Price.ToString("N0") đ</div>
+            <p class="font-body-lg text-body-lg text-on-surface-variant mb-md">@Model.Description</p>
 
-        @* Man hinh chi tiet mon nay hien thi khac nhau tuy vai tro dang dang nhap:
-           - Customer: thay form "Them vao gio" de dat mon
-           - Da dang nhap nhung khong phai Customer (tuc la Admin): bao khong dat duoc mon
-           - Chua dang nhap: moi bam vao thi chi xem duoc, phai dang nhap moi dat mon duoc *@
-        @if (!Model.IsAvailable)
-        {
-            <p class="text-danger fw-bold">Món ăn hiện đã ngừng phục vụ.</p>
-        }
-        else if (User.IsInRole(UserRole.Customer))
-        {
-            <form class="add-cart-form d-flex align-items-center gap-2" asp-controller="Cart" asp-action="Add" method="post">
-                <input type="hidden" name="dishId" value="@Model.DishId" />
-                <label for="quantity" class="mb-0">Số lượng:</label>
-                <input type="number" id="quantity" name="quantity" value="1" min="1" class="form-control" />
-                <button type="submit" class="btn btn-restaurant-primary">🛒 Thêm vào giỏ</button>
-            </form>
-        }
-        else if (User.Identity != null && User.Identity.IsAuthenticated)
-        {
-            <p class="text-muted fst-italic">Tài khoản quản trị không thể đặt món.</p>
-        }
-        else
-        {
-            <p>
-                <a asp-controller="Account" asp-action="Login" class="btn btn-restaurant-primary">Đăng nhập để đặt món</a>
-                <span class="text-muted d-block mt-2">Chưa có tài khoản? <a asp-controller="Account" asp-action="Register">Đăng ký ngay</a></span>
-            </p>
-        }
+            <hr class="border-outline-variant mb-md" />
 
-        <a asp-action="Index" class="btn btn-link mt-3">&larr; Quay lại thực đơn</a>
+            @* Man hinh chi tiet mon nay hien thi khac nhau tuy vai tro dang dang nhap:
+               - Customer: form "Them vao gio" de dat mon
+               - Da dang nhap nhung khong phai Customer (tuc la Admin): bao khong dat duoc mon
+               - Chua dang nhap: moi bam vao thi chi xem duoc, phai dang nhap moi dat mon duoc *@
+            @if (Model.IsAvailable && User.IsInRole(UserRole.Customer))
+            {
+                <form class="flex items-center gap-sm mb-md" asp-controller="Cart" asp-action="Add" method="post">
+                    <input type="hidden" name="dishId" value="@Model.DishId" />
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="stepQty(this, -1)"
+                                class="w-9 h-9 flex items-center justify-center rounded border border-outline-variant text-on-surface hover:bg-surface-variant transition-colors">
+                            −
+                        </button>
+                        <input type="number" id="quantity" name="quantity" value="1" min="1"
+                               class="qty-input w-14 text-center rounded border border-outline-variant px-1 py-2 focus:outline-none focus:border-primary" />
+                        <button type="button" onclick="stepQty(this, 1)"
+                                class="w-9 h-9 flex items-center justify-center rounded border border-outline-variant text-on-surface hover:bg-surface-variant transition-colors">
+                            +
+                        </button>
+                    </div>
+                    <button type="submit"
+                            class="flex items-center gap-1 px-5 py-2 rounded font-label-md text-label-md bg-secondary text-white hover:bg-secondary/90 transition-colors">
+                        <span class="material-symbols-outlined text-base">shopping_cart</span>
+                        Thêm vào giỏ hàng
+                    </button>
+                </form>
+            }
+
+            @if (!Model.IsAvailable)
+            {
+                <div class="flex gap-2 items-start rounded-lg border border-error/30 bg-error-container px-4 py-3 mb-sm">
+                    <span class="material-symbols-outlined text-error">block</span>
+                    <div>
+                        <div class="font-label-md text-label-md uppercase text-on-error-container font-bold">Ngừng bán</div>
+                        <div class="font-body-sm text-body-sm text-on-error-container">Món ăn này hiện đang tạm hết nguyên liệu hoặc ngừng phục vụ.</div>
+                    </div>
+                </div>
+            }
+            else if (User.Identity != null && User.Identity.IsAuthenticated && !User.IsInRole(UserRole.Customer))
+            {
+                <div class="flex gap-2 items-start rounded-lg border border-secondary/30 bg-secondary-container/40 px-4 py-3 mb-sm">
+                    <span class="material-symbols-outlined text-on-secondary-container">warning</span>
+                    <div>
+                        <div class="font-label-md text-label-md uppercase text-on-secondary-container font-bold">Thông báo cho Admin</div>
+                        <div class="font-body-sm text-body-sm text-on-secondary-container">Tài khoản quản trị không thể đặt món. Vui lòng đăng nhập bằng tài khoản khách hàng để đặt món.</div>
+                    </div>
+                </div>
+            }
+            else if (User.Identity == null || !User.Identity.IsAuthenticated)
+            {
+                <div class="flex gap-2 items-start rounded-lg border border-primary/20 bg-primary-fixed/60 px-4 py-3 mb-sm">
+                    <span class="material-symbols-outlined text-on-primary-fixed-variant">lock</span>
+                    <div>
+                        <div class="font-label-md text-label-md uppercase text-on-primary-fixed-variant font-bold">Yêu cầu đăng nhập</div>
+                        <div class="font-body-sm text-body-sm text-on-primary-fixed-variant">
+                            Vui lòng
+                            <a asp-controller="Account" asp-action="Login" class="underline font-bold">đăng nhập</a>
+                            để đặt món.
+                            Chưa có tài khoản? <a asp-controller="Account" asp-action="Register" class="underline font-bold">Đăng ký ngay</a>.
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
     </div>
 </div>
+
+<script>
+    function stepQty(button, delta) {
+        const container = button.parentElement;
+        const input = container.querySelector('.qty-input');
+        let value = parseInt(input.value || '1', 10) + delta;
+        if (value < 1) value = 1;
+        input.value = value;
+    }
+</script>

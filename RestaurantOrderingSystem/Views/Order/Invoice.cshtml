@@ -1,109 +1,71 @@
 @model Order
 @{
     ViewData["Title"] = "Hóa đơn " + Model.OrderCode;
+
+    string BadgeClass(OrderStatus s) => s switch
+    {
+        OrderStatus.Pending => "bg-secondary-container/40 text-on-secondary-container",
+        OrderStatus.Confirmed => "bg-primary-fixed text-on-primary-fixed-variant",
+        OrderStatus.Paid => "bg-tertiary-fixed text-on-tertiary-fixed-variant",
+        OrderStatus.Cancelled => "bg-error-container text-on-error-container",
+        _ => "bg-surface-variant text-on-surface-variant"
+    };
 }
-<style>
-    .invoice-box {
-        background-color: white;
-        border: 1px solid gainsboro;
-        border-radius: 10px;
-        padding: 2rem;
-        max-width: 800px;
-        margin: 0 auto;
-    }
 
-    .invoice-header {
-        border-bottom: 3px solid orange;
-        padding-bottom: 1rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .invoice-header h2 {
-        color: darkblue;
-        margin-bottom: 0.25rem;
-    }
-
-    .invoice-code {
-        color: orange;
-        font-weight: 700;
-        font-size: 1.1rem;
-    }
-
-    .invoice-table th {
-        background-color: darkblue;
-        color: white;
-    }
-
-    .invoice-total-row td {
-        font-weight: 700;
-        color: orange;
-        font-size: 1.15rem;
-    }
-
-    .status-badge {
-        padding: 0.35rem 0.75rem;
-        border-radius: 20px;
-        color: white;
-        font-weight: 600;
-    }
-
-    .status-Pending { background-color: dimgray; }
-    .status-Confirmed { background-color: steelblue; }
-    .status-Paid { background-color: seagreen; }
-    .status-Cancelled { background-color: firebrick; }
-</style>
-
-<div class="invoice-box">
-    <div class="invoice-header d-flex justify-content-between align-items-start flex-wrap">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-lg max-w-3xl mx-auto">
+    <div class="flex justify-between items-start flex-wrap gap-md border-b-2 border-secondary-container pb-md mb-md">
         <div>
-            <h2>Nhà Hàng Online</h2>
-            <div class="text-muted">Hóa đơn đặt món</div>
+            <h1 class="font-headline-lg text-headline-lg text-on-background mb-xs">Nhà Hàng HUFLIT</h1>
+            <div class="font-body-sm text-body-sm text-on-surface-variant">Hóa đơn đặt món</div>
         </div>
-        <div class="text-end">
-            <div class="invoice-code">Mã hóa đơn: @Model.OrderCode</div>
-            <div>Ngày đặt: @Model.OrderDate.ToString("HH:mm dd/MM/yyyy")</div>
-            <span class="status-badge status-@Model.Status">@Model.Status</span>
+        <div class="text-right">
+            <div class="font-title-md text-title-md text-secondary font-bold">Mã hóa đơn: @Model.OrderCode</div>
+            <div class="font-body-sm text-body-sm text-on-surface-variant">Ngày đặt: @Model.OrderDate.ToString("HH:mm dd/MM/yyyy")</div>
+            <span class="inline-block mt-xs px-2 py-1 rounded-full font-label-md text-label-md uppercase @BadgeClass(Model.Status)">@Model.Status</span>
         </div>
     </div>
 
-    <div class="row mb-3">
-        <div class="col-md-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-md mb-md font-body-sm text-body-sm text-on-surface">
+        <div>
             <strong>Khách hàng:</strong> @Model.CustomerName<br />
             <strong>Điện thoại:</strong> @Model.PhoneNumber
         </div>
-        <div class="col-md-6">
+        <div>
             <strong>Số bàn:</strong> @(string.IsNullOrEmpty(Model.TableNumber) ? "Mang về" : Model.TableNumber)<br />
             <strong>Ghi chú:</strong> @(string.IsNullOrEmpty(Model.Note) ? "(không có)" : Model.Note)
         </div>
     </div>
 
-    <table class="table table-bordered invoice-table">
-        <thead>
-            <tr>
-                <th>Món ăn</th>
-                <th class="text-end">Đơn giá</th>
-                <th class="text-center">Số lượng</th>
-                <th class="text-end">Thành tiền</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var detail in Model.OrderDetails ?? Enumerable.Empty<OrderDetail>())
-            {
-                <tr>
-                    <td>@detail.DishName</td>
-                    <td class="text-end">@detail.UnitPrice.ToString("N0") đ</td>
-                    <td class="text-center">@detail.Quantity</td>
-                    <td class="text-end">@detail.SubTotal.ToString("N0") đ</td>
+    <div class="overflow-x-auto rounded-lg border border-outline-variant mb-md">
+        <table class="w-full">
+            <thead>
+                <tr class="bg-surface-container-low">
+                    <th class="font-label-md text-label-md uppercase text-on-surface-variant text-left px-md py-sm">Món ăn</th>
+                    <th class="font-label-md text-label-md uppercase text-on-surface-variant text-right px-md py-sm">Đơn giá</th>
+                    <th class="font-label-md text-label-md uppercase text-on-surface-variant text-center px-md py-sm">Số lượng</th>
+                    <th class="font-label-md text-label-md uppercase text-on-surface-variant text-right px-md py-sm">Thành tiền</th>
                 </tr>
-            }
-            <tr class="invoice-total-row">
-                <td colspan="3" class="text-end">Tổng cộng:</td>
-                <td class="text-end">@Model.TotalAmount.ToString("N0") đ</td>
-            </tr>
-        </tbody>
-    </table>
-
-    <div class="d-flex gap-2 mt-3">
-        <a asp-controller="Menu" asp-action="Index" class="btn btn-restaurant-primary">Đặt thêm món khác</a>
+            </thead>
+            <tbody>
+                @foreach (var detail in Model.OrderDetails ?? Enumerable.Empty<OrderDetail>())
+                {
+                    <tr class="border-t border-outline-variant">
+                        <td class="px-md py-sm font-body-sm text-body-sm text-on-surface">@detail.DishName</td>
+                        <td class="px-md py-sm font-body-sm text-body-sm text-on-surface text-right">@detail.UnitPrice.ToString("N0") đ</td>
+                        <td class="px-md py-sm font-body-sm text-body-sm text-on-surface text-center">@detail.Quantity</td>
+                        <td class="px-md py-sm font-body-sm text-body-sm text-on-surface text-right">@detail.SubTotal.ToString("N0") đ</td>
+                    </tr>
+                }
+                <tr class="border-t border-outline-variant">
+                    <td colspan="3" class="px-md py-sm text-right font-title-md text-title-md text-secondary font-bold">Tổng cộng:</td>
+                    <td class="px-md py-sm text-right font-title-md text-title-md text-secondary font-bold">@Model.TotalAmount.ToString("N0") đ</td>
+                </tr>
+            </tbody>
+        </table>
     </div>
+
+    <a asp-controller="Menu" asp-action="Index"
+       class="inline-block px-4 py-2 rounded font-label-md text-label-md bg-secondary text-white hover:bg-secondary/90 transition-colors">
+        Đặt thêm món khác
+    </a>
 </div>
