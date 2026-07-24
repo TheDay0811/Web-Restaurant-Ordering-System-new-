@@ -41,7 +41,15 @@ namespace RestaurantOrderingSystem.Models
                         FullName = "Khách hàng demo",
                         PhoneNumber = "0900000001",
                         Role = UserRole.Customer
-                    }
+                    },
+                     new User
+                     {
+                         UserName = "Huy",
+                         Password = "huy08112006",
+                         FullName = "HuyNguyen",
+                         PhoneNumber = "0902637150",
+                         Role = UserRole.Customer
+                     }
                 );
                 context.SaveChanges();
             }

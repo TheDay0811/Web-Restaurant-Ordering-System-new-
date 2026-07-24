@@ -1,24 +1,17 @@
 @{
     ViewData["Title"] = "Không có quyền truy cập";
 }
-<style>
-    .denied-box {
-        max-width: 500px;
-        margin: 2rem auto;
-        background-color: white;
-        border-left: 6px solid orange;
-        border-radius: 10px;
-        padding: 2rem;
-        text-align: center;
-    }
 
-    .denied-box h2 {
-        color: darkblue;
-    }
-</style>
-
-<div class="denied-box">
-    <h2>🚫 Bạn không có quyền truy cập chức năng này</h2>
-    <p>Chức năng này chỉ dành cho một vai trò khác trong hệ thống (Khách hàng hoặc Quản trị viên).</p>
-    <a asp-controller="Home" asp-action="Index" class="btn btn-restaurant-dark">Về trang chủ</a>
+<div class="max-w-md mx-auto my-lg">
+    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-[0px_4px_20px_rgba(0,0,0,0.06)] p-lg text-center">
+        <span class="material-symbols-outlined text-error text-[40px] mb-xs">block</span>
+        <h1 class="font-headline-lg text-headline-lg text-primary mb-xs">Bạn không có quyền truy cập</h1>
+        <p class="font-body-lg text-body-lg text-on-surface-variant mb-lg">
+            Chức năng này chỉ dành cho một vai trò khác trong hệ thống (Khách hàng hoặc Quản trị viên).
+        </p>
+        <a asp-controller="Home" asp-action="Index"
+           class="inline-block px-6 py-3 rounded font-label-md text-label-md text-white bg-primary hover:bg-primary-container transition-colors">
+            Về trang chủ
+        </a>
+    </div>
 </div>

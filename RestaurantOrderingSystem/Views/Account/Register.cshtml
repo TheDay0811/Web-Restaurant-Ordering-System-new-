@@ -2,73 +2,94 @@
 @{
     ViewData["Title"] = "Đăng ký";
 }
-<style>
-    .register-box {
-        max-width: 460px;
-        margin: 2rem auto;
-        background-color: white;
-        border: 2px solid darkblue;
-        border-radius: 10px;
-        padding: 2rem;
-    }
 
-    .register-box h2 {
-        color: darkblue;
-        text-align: center;
-        margin-bottom: 1.5rem;
-    }
+<div class="max-w-md mx-auto my-lg">
+    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-[0px_4px_20px_rgba(0,0,0,0.06)] p-lg">
 
-    .register-box label {
-        font-weight: 600;
-        color: darkblue;
-    }
-
-    .register-hint {
-        background-color: whitesmoke;
-        border-left: 4px solid orange;
-        padding: 0.6rem 1rem;
-        font-size: 0.85rem;
-        margin-top: 1.5rem;
-    }
-</style>
-
-<div class="register-box">
-    <h2>Đăng ký tài khoản khách hàng</h2>
-    <form asp-controller="Account" asp-action="Register" method="post">
-        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-        <div class="mb-3">
-            <label asp-for="UserName"></label>
-            <input asp-for="UserName" class="form-control" placeholder="Nhập tên đăng nhập..." />
-            <span asp-validation-for="UserName" class="text-danger"></span>
-        </div>
-        <div class="mb-3">
-            <label asp-for="FullName"></label>
-            <input asp-for="FullName" class="form-control" placeholder="Nhập họ và tên..." />
-            <span asp-validation-for="FullName" class="text-danger"></span>
-        </div>
-        <div class="mb-3">
-            <label asp-for="PhoneNumber"></label>
-            <input asp-for="PhoneNumber" class="form-control" placeholder="Nhập số điện thoại..." />
-            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-        </div>
-        <div class="mb-3">
-            <label asp-for="Password"></label>
-            <input asp-for="Password" type="password" class="form-control" placeholder="Nhập mật khẩu..." />
-            <span asp-validation-for="Password" class="text-danger"></span>
-        </div>
-        <div class="mb-3">
-            <label asp-for="ConfirmPassword"></label>
-            <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Nhập lại mật khẩu..." />
-            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+        <div class="flex flex-col items-center text-center mb-lg">
+            <span class="material-symbols-outlined text-primary text-[40px] mb-xs">person_add</span>
+            <h1 class="font-headline-lg text-headline-lg text-primary">Nhà Hàng HUFLIT</h1>
+            <p class="font-body-lg text-body-lg text-on-surface-variant mt-xs">Tạo tài khoản khách hàng để bắt đầu đặt món.</p>
         </div>
 
-        <button type="submit" class="btn btn-restaurant-primary w-100">Đăng ký</button>
-    </form>
+        <form asp-controller="Account" asp-action="Register" method="post" class="flex flex-col gap-md">
+            <div asp-validation-summary="ModelOnly" class="text-error font-body-sm text-body-sm"></div>
 
-    <div class="register-hint">
-        Tài khoản đăng ký tại đây sẽ luôn là <strong>tài khoản khách hàng</strong> (Customer).
-        Đã có tài khoản? <a asp-controller="Account" asp-action="Login">Đăng nhập tại đây</a>.
+            <div>
+                <label asp-for="UserName" class="block font-label-md text-label-md text-on-surface mb-xs"></label>
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px] pointer-events-none">person</span>
+                    <input asp-for="UserName"
+                           class="w-full pl-10 pr-3 py-2.5 rounded border border-outline-variant bg-surface-container-lowest font-body-lg text-body-lg text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
+                           placeholder="Nhập tên đăng nhập..." autocomplete="username" />
+                </div>
+                <span asp-validation-for="UserName" class="text-error font-body-sm text-body-sm"></span>
+            </div>
+
+            <div>
+                <label asp-for="FullName" class="block font-label-md text-label-md text-on-surface mb-xs"></label>
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px] pointer-events-none">badge</span>
+                    <input asp-for="FullName"
+                           class="w-full pl-10 pr-3 py-2.5 rounded border border-outline-variant bg-surface-container-lowest font-body-lg text-body-lg text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
+                           placeholder="Nhập họ và tên..." autocomplete="name" />
+                </div>
+                <span asp-validation-for="FullName" class="text-error font-body-sm text-body-sm"></span>
+            </div>
+
+            <div>
+                <label asp-for="PhoneNumber" class="block font-label-md text-label-md text-on-surface mb-xs"></label>
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px] pointer-events-none">call</span>
+                    <input asp-for="PhoneNumber"
+                           class="w-full pl-10 pr-3 py-2.5 rounded border border-outline-variant bg-surface-container-lowest font-body-lg text-body-lg text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
+                           placeholder="Nhập số điện thoại..." autocomplete="tel" />
+                </div>
+                <span asp-validation-for="PhoneNumber" class="text-error font-body-sm text-body-sm"></span>
+            </div>
+
+            <div>
+                <label asp-for="Password" class="block font-label-md text-label-md text-on-surface mb-xs"></label>
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px] pointer-events-none">lock</span>
+                    <input asp-for="Password" type="password"
+                           class="w-full pl-10 pr-3 py-2.5 rounded border border-outline-variant bg-surface-container-lowest font-body-lg text-body-lg text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
+                           placeholder="Nhập mật khẩu..." autocomplete="new-password" />
+                </div>
+                <span asp-validation-for="Password" class="text-error font-body-sm text-body-sm"></span>
+            </div>
+
+            <div>
+                <label asp-for="ConfirmPassword" class="block font-label-md text-label-md text-on-surface mb-xs"></label>
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px] pointer-events-none">lock_reset</span>
+                    <input asp-for="ConfirmPassword" type="password"
+                           class="w-full pl-10 pr-3 py-2.5 rounded border border-outline-variant bg-surface-container-lowest font-body-lg text-body-lg text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
+                           placeholder="Nhập lại mật khẩu..." autocomplete="new-password" />
+                </div>
+                <span asp-validation-for="ConfirmPassword" class="text-error font-body-sm text-body-sm"></span>
+            </div>
+
+            <button type="submit"
+                    class="w-full py-3 rounded font-label-md text-label-md text-white bg-primary hover:bg-primary-container transition-colors">
+                Đăng ký
+            </button>
+        </form>
+
+        <p class="text-center font-body-sm text-body-sm text-on-surface-variant mt-md">
+            Đã có tài khoản?
+            <a asp-controller="Account" asp-action="Login" class="text-primary font-bold hover:underline">Đăng nhập</a>
+        </p>
+
+        <div class="mt-lg p-md rounded-lg bg-secondary-fixed/40 border border-dashed border-secondary-container">
+            <div class="flex items-start gap-2">
+                <span class="material-symbols-outlined text-secondary-container text-[20px] leading-none mt-[1px]">info</span>
+                <p class="font-body-sm text-body-sm text-on-surface">
+                    Tài khoản đăng ký tại đây sẽ luôn là <strong>tài khoản khách hàng</strong> (Customer).
+                </p>
+            </div>
+        </div>
+
     </div>
 </div>
 
