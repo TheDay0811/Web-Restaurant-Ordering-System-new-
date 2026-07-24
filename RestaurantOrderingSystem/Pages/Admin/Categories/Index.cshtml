@@ -3,58 +3,57 @@
 @{
     ViewData["Title"] = "Quản lý danh mục";
 }
-<style>
-    .admin-table th {
-        background-color: darkblue;
-        color: white;
-    }
 
-    .admin-title {
-        color: darkblue;
-        font-weight: 700;
-    }
-
-    .count-badge {
-        background-color: orange;
-        color: white;
-    }
-</style>
-
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="admin-title">Quản lý danh mục món ăn</h2>
-    <a asp-page="Create" class="btn btn-restaurant-primary">+ Thêm danh mục</a>
+<div class="flex items-center justify-between mb-lg gap-md flex-wrap">
+    <h1 class="font-headline-lg text-headline-lg text-primary flex items-center gap-2">
+        <span class="material-symbols-outlined text-primary text-[32px]">category</span>
+        Quản lý danh mục món ăn
+    </h1>
+    <a asp-page="Create"
+       class="inline-flex items-center gap-1 px-4 py-2 rounded font-label-md text-label-md text-white bg-primary hover:bg-primary-container transition-colors">
+        <span class="material-symbols-outlined text-[18px]">add</span>
+        Thêm danh mục
+    </a>
 </div>
 
 @if (!Model.CategoryList.Any())
 {
-    <p>Chưa có danh mục nào.</p>
+    <p class="font-body-lg text-body-lg text-on-surface-variant">Chưa có danh mục nào.</p>
 }
 else
 {
-    <table class="table table-bordered align-middle admin-table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Tên danh mục</th>
-                <th>Mô tả</th>
-                <th>Số món ăn</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.CategoryList)
-            {
+    <div class="overflow-x-auto rounded-lg border border-outline-variant bg-surface-container-lowest shadow-[0px_2px_10px_rgba(0,0,0,0.04)]">
+        <table class="w-full text-left border-collapse">
+            <thead class="bg-primary text-white">
                 <tr>
-                    <td>@item.CategoryId</td>
-                    <td>@item.Name</td>
-                    <td>@item.Description</td>
-                    <td><span class="badge count-badge">@(item.Dishes?.Count ?? 0)</span></td>
-                    <td>
-                        <a asp-page="Edit" asp-route-id="@item.CategoryId" class="btn btn-sm btn-restaurant-dark">Sửa</a>
-                        <a asp-page="Delete" asp-route-id="@item.CategoryId" class="btn btn-sm btn-outline-danger">Xóa</a>
-                    </td>
+                    <th class="px-4 py-3 font-label-md text-label-md">ID</th>
+                    <th class="px-4 py-3 font-label-md text-label-md">Tên danh mục</th>
+                    <th class="px-4 py-3 font-label-md text-label-md">Mô tả</th>
+                    <th class="px-4 py-3 font-label-md text-label-md">Số món ăn</th>
+                    <th class="px-4 py-3"></th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody class="divide-y divide-outline-variant">
+                @foreach (var item in Model.CategoryList)
+                {
+                    <tr class="hover:bg-surface-container transition-colors">
+                        <td class="px-4 py-3 font-body-lg text-body-lg text-on-surface-variant">@item.CategoryId</td>
+                        <td class="px-4 py-3 font-body-lg text-body-lg text-on-surface font-semibold">@item.Name</td>
+                        <td class="px-4 py-3 font-body-lg text-body-lg text-on-surface-variant">@item.Description</td>
+                        <td class="px-4 py-3">
+                            <span class="inline-block px-3 py-1 rounded-full font-body-sm text-body-sm bg-secondary-container text-white">@(item.Dishes?.Count ?? 0)</span>
+                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex gap-2">
+                                <a asp-page="Edit" asp-route-id="@item.CategoryId"
+                                   class="px-3 py-1.5 rounded font-label-md text-label-md text-white bg-primary hover:bg-primary-container transition-colors">Sửa</a>
+                                <a asp-page="Delete" asp-route-id="@item.CategoryId"
+                                   class="px-3 py-1.5 rounded font-label-md text-label-md text-error border border-error hover:bg-error-container transition-colors">Xóa</a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 }

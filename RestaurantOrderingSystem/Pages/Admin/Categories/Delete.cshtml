@@ -3,27 +3,23 @@
 @{
     ViewData["Title"] = "Xóa danh mục";
 }
-<style>
-    .admin-form {
-        max-width: 600px;
-        background-color: white;
-        border: 2px solid firebrick;
-        border-radius: 10px;
-        padding: 1.5rem;
-    }
-</style>
 
-<h2 style="color:darkblue;">Xác nhận xóa danh mục</h2>
+<h1 class="font-headline-lg text-headline-lg text-primary flex items-center gap-2 mb-lg">
+    <span class="material-symbols-outlined text-error text-[32px]">warning</span>
+    Xác nhận xóa danh mục
+</h1>
 
-<div class="admin-form">
+<div class="max-w-xl bg-surface-container-lowest rounded-xl border-2 border-error shadow-[0px_4px_20px_rgba(0,0,0,0.06)] p-lg">
     @if (Model.ErrorMessage != null)
     {
-        <p class="text-danger fw-bold">@Model.ErrorMessage</p>
+        <p class="text-error font-body-lg text-body-lg font-bold mb-md">@Model.ErrorMessage</p>
     }
-    <p>Bạn có chắc muốn xóa danh mục <strong>@Model.Category.Name</strong>?</p>
-    <form method="post">
+    <p class="font-body-lg text-body-lg text-on-surface mb-md">
+        Bạn có chắc muốn xóa danh mục <strong>@Model.Category.Name</strong>?
+    </p>
+    <form method="post" class="flex gap-2">
         <input type="hidden" asp-for="Category.CategoryId" />
-        <button type="submit" class="btn btn-danger">Xóa</button>
-        <a asp-page="Index" class="btn btn-outline-secondary">Hủy</a>
+        <button type="submit" class="px-5 py-2.5 rounded font-label-md text-label-md text-white bg-error hover:bg-error/90 transition-colors">Xóa</button>
+        <a asp-page="Index" class="px-5 py-2.5 rounded font-label-md text-label-md text-on-surface border border-outline-variant hover:bg-surface-container transition-colors">Hủy</a>
     </form>
 </div>

@@ -3,46 +3,32 @@
 @{
     ViewData["Title"] = "Xóa món ăn";
 }
-<style>
-    .admin-form {
-        max-width: 600px;
-        background-color: white;
-        border: 2px solid firebrick;
-        border-radius: 10px;
-        padding: 1.5rem;
-    }
 
-    .current-image {
-        width: 140px;
-        height: 100px;
-        object-fit: cover;
-        border-radius: 6px;
-        margin-bottom: 0.75rem;
-    }
-</style>
+<h1 class="font-headline-lg text-headline-lg text-primary flex items-center gap-2 mb-lg">
+    <span class="material-symbols-outlined text-error text-[32px]">warning</span>
+    Xác nhận xóa món ăn
+</h1>
 
-<h2 style="color:darkblue;">Xác nhận xóa món ăn</h2>
-
-<div class="admin-form">
+<div class="max-w-xl bg-surface-container-lowest rounded-xl border-2 border-error shadow-[0px_4px_20px_rgba(0,0,0,0.06)] p-lg">
     @if (Model.ErrorMessage != null)
     {
-        <p class="text-danger fw-bold">@Model.ErrorMessage</p>
+        <p class="text-error font-body-lg text-body-lg font-bold mb-md">@Model.ErrorMessage</p>
+        <a asp-page="Index"
+           class="inline-block px-5 py-2.5 rounded font-label-md text-label-md text-on-surface border border-outline-variant hover:bg-surface-container transition-colors">Quay lại danh sách</a>
     }
     else
     {
         @if (!string.IsNullOrEmpty(Model.Dish.ImageUrl))
         {
-            <img class="current-image" src="@Model.Dish.ImageUrl" alt="@Model.Dish.Name" />
+            <img class="w-[140px] h-[100px] object-cover rounded mb-sm" src="@Model.Dish.ImageUrl" alt="@Model.Dish.Name" />
         }
-        <p>Bạn có chắc muốn xóa món <strong>@Model.Dish.Name</strong> (@Model.Dish.Category?.Name)?</p>
-        <form method="post">
+        <p class="font-body-lg text-body-lg text-on-surface mb-md">
+            Bạn có chắc muốn xóa món <strong>@Model.Dish.Name</strong> (@Model.Dish.Category?.Name)?
+        </p>
+        <form method="post" class="flex gap-2">
             <input type="hidden" asp-for="Dish.DishId" />
-            <button type="submit" class="btn btn-danger">Xóa</button>
-            <a asp-page="Index" class="btn btn-outline-secondary">Hủy</a>
+            <button type="submit" class="px-5 py-2.5 rounded font-label-md text-label-md text-white bg-error hover:bg-error/90 transition-colors">Xóa</button>
+            <a asp-page="Index" class="px-5 py-2.5 rounded font-label-md text-label-md text-on-surface border border-outline-variant hover:bg-surface-container transition-colors">Hủy</a>
         </form>
-    }
-    @if (Model.ErrorMessage != null)
-    {
-        <a asp-page="Index" class="btn btn-outline-secondary mt-2">Quay lại danh sách</a>
     }
 </div>

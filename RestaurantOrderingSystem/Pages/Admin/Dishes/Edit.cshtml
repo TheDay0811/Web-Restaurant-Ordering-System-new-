@@ -3,92 +3,70 @@
 @{
     ViewData["Title"] = "Sửa món ăn";
 }
-<style>
-    .admin-form {
-        max-width: 700px;
-        background-color: white;
-        border: 1px solid gainsboro;
-        border-radius: 10px;
-        padding: 1.5rem;
-    }
 
-    .admin-form label {
-        font-weight: 600;
-        color: darkblue;
-    }
+<h1 class="font-headline-lg text-headline-lg text-primary flex items-center gap-2 mb-lg">
+    <span class="material-symbols-outlined text-primary text-[32px]">edit</span>
+    Sửa món ăn
+</h1>
 
-    .form-check-label {
-        font-weight: normal !important;
-        color: initial !important;
-    }
-
-    .current-image {
-        width: 140px;
-        height: 100px;
-        object-fit: cover;
-        border-radius: 6px;
-        border: 1px solid gainsboro;
-        margin-bottom: 0.5rem;
-    }
-
-    .image-link-hint {
-        background-color: whitesmoke;
-        border-left: 4px solid orange;
-        padding: 0.5rem 1rem;
-        font-size: 0.85rem;
-        margin-top: 0.5rem;
-    }
-</style>
-
-<h2 style="color:darkblue;">Sửa món ăn</h2>
-
-<div class="admin-form">
-    <form method="post">
-        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="max-w-2xl bg-surface-container-lowest rounded-xl border border-outline-variant shadow-[0px_4px_20px_rgba(0,0,0,0.06)] p-lg">
+    <form method="post" class="flex flex-col gap-md">
+        <div asp-validation-summary="ModelOnly" class="text-error font-body-sm text-body-sm"></div>
         <input type="hidden" asp-for="Dish.DishId" />
 
         @* Xem truoc anh hien tai (theo link dang luu), giup Admin biet minh dang sua anh nao *@
         @if (!string.IsNullOrEmpty(Model.Dish.ImageUrl))
         {
             <div>
-                <img class="current-image" src="@Model.Dish.ImageUrl" alt="@Model.Dish.Name" />
+                <img class="w-[140px] h-[100px] object-cover rounded border border-outline-variant"
+                     src="@Model.Dish.ImageUrl" alt="@Model.Dish.Name" />
             </div>
         }
 
-        <div class="mb-3">
-            <label asp-for="Dish.Name"></label>
-            <input asp-for="Dish.Name" class="form-control" />
-            <span asp-validation-for="Dish.Name" class="text-danger"></span>
+        <div>
+            <label asp-for="Dish.Name" class="block font-label-md text-label-md text-on-surface mb-xs"></label>
+            <input asp-for="Dish.Name"
+                   class="w-full px-3 py-2.5 rounded border border-outline-variant bg-surface-container-lowest font-body-lg text-body-lg text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors" />
+            <span asp-validation-for="Dish.Name" class="text-error font-body-sm text-body-sm"></span>
         </div>
-        <div class="mb-3">
-            <label asp-for="Dish.Description"></label>
-            <textarea asp-for="Dish.Description" class="form-control" rows="3"></textarea>
+
+        <div>
+            <label asp-for="Dish.Description" class="block font-label-md text-label-md text-on-surface mb-xs"></label>
+            <textarea asp-for="Dish.Description" rows="3"
+                      class="w-full px-3 py-2.5 rounded border border-outline-variant bg-surface-container-lowest font-body-lg text-body-lg text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"></textarea>
         </div>
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label asp-for="Dish.Price"></label>
-                <input asp-for="Dish.Price" class="form-control" />
-                <span asp-validation-for="Dish.Price" class="text-danger"></span>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+            <div>
+                <label asp-for="Dish.Price" class="block font-label-md text-label-md text-on-surface mb-xs"></label>
+                <input asp-for="Dish.Price"
+                       class="w-full px-3 py-2.5 rounded border border-outline-variant bg-surface-container-lowest font-body-lg text-body-lg text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors" />
+                <span asp-validation-for="Dish.Price" class="text-error font-body-sm text-body-sm"></span>
             </div>
-            <div class="col-md-6 mb-3">
-                <label asp-for="Dish.CategoryId"></label>
-                <select asp-for="Dish.CategoryId" asp-items="Model.CategoryOptions" class="form-select">
+            <div>
+                <label asp-for="Dish.CategoryId" class="block font-label-md text-label-md text-on-surface mb-xs"></label>
+                <select asp-for="Dish.CategoryId" asp-items="Model.CategoryOptions"
+                        class="w-full px-3 py-2.5 rounded border border-outline-variant bg-surface-container-lowest font-body-lg text-body-lg text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors">
                     <option value="">-- Chọn danh mục --</option>
                 </select>
-                <span asp-validation-for="Dish.CategoryId" class="text-danger"></span>
+                <span asp-validation-for="Dish.CategoryId" class="text-error font-body-sm text-body-sm"></span>
             </div>
         </div>
-        <div class="mb-3">
-            <label asp-for="Dish.ImageUrl"></label>
-            <input asp-for="Dish.ImageUrl" class="form-control" placeholder="https://res.cloudinary.com/..." />
 
-        </div>
-        <div class="mb-3 form-check">
-            <input asp-for="Dish.IsAvailable" class="form-check-input" />
-            <label asp-for="Dish.IsAvailable" class="form-check-label">Đang phục vụ</label>
+        <div>
+            <label asp-for="Dish.ImageUrl" class="block font-label-md text-label-md text-on-surface mb-xs"></label>
+            <input asp-for="Dish.ImageUrl" placeholder="https://res.cloudinary.com/..."
+                   class="w-full px-3 py-2.5 rounded border border-outline-variant bg-surface-container-lowest font-body-lg text-body-lg text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors" />
         </div>
 
-        <button type="submit" class="btn btn-restaurant-primary">Cập nhật</button>
-        <a asp-page="Index" class="btn btn-outline-secondary">Hủy</a>
+        <label class="flex items-center gap-2 font-body-sm text-body-sm text-on-surface cursor-pointer select-none">
+            <input asp-for="Dish.IsAvailable" class="w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary/30" />
+            <span>Đang phục vụ</span>
+        </label>
+
+        <div class="flex gap-2 pt-xs">
+            <button type="submit" class="px-5 py-2.5 rounded font-label-md text-label-md text-white bg-primary hover:bg-primary-container transition-colors">Cập nhật</button>
+            <a asp-page="Index" class="px-5 py-2.5 rounded font-label-md text-label-md text-on-surface border border-outline-variant hover:bg-surface-container transition-colors">Hủy</a>
+        </div>
     </form>
 </div>
