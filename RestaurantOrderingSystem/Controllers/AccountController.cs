@@ -49,6 +49,9 @@ namespace RestaurantOrderingSystem.Controllers
             SaveLoginCookie(model);
             await SignIn(user);
 
+            if (user.Role == UserRole.Kitchen)
+                return RedirectToAction("Index", "Kitchen");
+
             return RedirectToAction("Index", "Home");
         }
 
