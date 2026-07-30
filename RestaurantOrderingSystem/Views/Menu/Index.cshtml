@@ -3,6 +3,7 @@
     ViewData["Title"] = "Thực đơn";
     var categories = ViewBag.Categories as List<Category> ?? new List<Category>();
     int? selectedCategoryId = ViewBag.SelectedCategoryId;
+    string? searchTerm = ViewBag.SearchTerm;
 }
 
 <div class="mb-lg flex flex-col gap-md">
@@ -10,6 +11,28 @@
         <h1 class="font-display-lg text-display-lg text-on-background mb-xs">Thực đơn</h1>
         <p class="font-body-lg text-body-lg text-on-surface-variant">Khám phá các món ăn hấp dẫn từ Nhà Hàng HUFLIT.</p>
     </div>
+
+    <!-- Thanh tim kiem theo ten mon - dung GET nen co the bookmark/share link duoc -->
+    <form asp-action="Index" method="get" class="flex gap-sm">
+        @if (selectedCategoryId.HasValue)
+        {
+            <input type="hidden" name="categoryId" value="@selectedCategoryId" />
+        }
+        <input type="text" name="searchTerm" value="@searchTerm"
+               placeholder="Tìm món ăn theo tên..."
+               class="flex-1 px-4 py-2 rounded-full border border-outline-variant bg-surface text-on-surface font-body-md text-body-md focus:outline-none focus:ring-2 focus:ring-primary" />
+        <button type="submit"
+                class="px-4 py-2 rounded-full font-label-md text-label-md bg-primary text-white hover:bg-primary-container transition-colors">
+            Tìm
+        </button>
+        @if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            <a asp-action="Index" asp-route-categoryId="@selectedCategoryId"
+               class="px-4 py-2 rounded-full font-label-md text-label-md bg-surface text-on-surface border border-outline-variant hover:bg-surface-variant transition-colors inline-flex items-center justify-center">
+                Xóa
+            </a>
+        }
+    </form>
 
     <!-- Category Pills -->
     <div class="flex flex-wrap gap-sm">
@@ -29,7 +52,11 @@
 
 @if (!Model.Any())
 {
-    <p class="font-body-lg text-body-lg text-on-surface-variant">Không có món ăn nào trong danh mục này.</p>
+    <p class="font-body-lg text-body-lg text-on-surface-variant">
+        @(!string.IsNullOrWhiteSpace(searchTerm)
+            ? $"Không tìm thấy món ăn nào khớp với \"{searchTerm}\"."
+            : "Không có món ăn nào trong danh mục này.")
+    </p>
 }
 else
 {
