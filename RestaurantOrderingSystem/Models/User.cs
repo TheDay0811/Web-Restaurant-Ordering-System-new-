@@ -7,6 +7,9 @@ namespace RestaurantOrderingSystem.Models
     {
         public const string Admin = "Admin";
         public const string Customer = "Customer";
+        // Nhan vien bep: chi xem duoc man hinh Kitchen (danh sach mon can lam),
+        // khong duoc vao trang quan ly hoa don/mon an/danh muc cua Admin
+        public const string Kitchen = "Kitchen";
     }
 
     // Tài khoản đăng nhập - lưu trong database (thay cho tài khoản hard-code trước đây)

@@ -55,6 +55,12 @@ namespace RestaurantOrderingSystem.Models
         [Display(Name = "Tổng tiền")]
         public decimal TotalAmount { get; set; }
 
+        // Bep da lam xong toan bo don nay chua - RIENG BIET voi Status o tren
+        // (Status danh cho Admin quan ly hoa don/thanh toan, con KitchenDone
+        // chi danh cho man hinh bep danh dau mon da nau xong hay chua)
+        [Display(Name = "Bếp đã xong")]
+        public bool KitchenDone { get; set; } = false;
+
         public ICollection<OrderDetail>? OrderDetails { get; set; }
     }
 }

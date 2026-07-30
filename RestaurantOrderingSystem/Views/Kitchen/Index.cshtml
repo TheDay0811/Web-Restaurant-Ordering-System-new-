@@ -1,0 +1,88 @@
+﻿@model IEnumerable<Order>
+@{
+    ViewData["Title"] = "Màn hình bếp";
+    // Tu lam moi trang moi 20 giay de bep luon thay don moi nhat ma khong can bam F5
+    // (nguoi dung da chon "Co, tu refresh moi 15-30s")
+}
+
+@section Scripts {
+    <script>
+        // Tu dong tai lai trang moi 20 giay de bep luon thay don moi nhat
+        setTimeout(function () { location.reload(); }, 20000);
+    </script>
+}
+
+<div class="flex items-center justify-between mb-md flex-wrap gap-sm">
+    <h2 class="font-title-md text-title-md md:font-headline-lg-mobile md:text-headline-lg-mobile font-bold text-primary">
+        Bếp - Món cần làm
+    </h2>
+    <span class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+        <span class="material-symbols-outlined text-[18px]">autorenew</span>
+        Tự làm mới mỗi 20 giây
+    </span>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="w-full text-center py-lg">
+        <span class="material-symbols-outlined text-[48px] text-on-surface-variant">restaurant</span>
+        <p class="font-body-lg text-body-lg text-on-surface-variant mt-sm">Hiện chưa có món nào cần làm 🎉</p>
+    </div>
+}
+else
+{
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-md">
+        @foreach (var order in Model)
+        {
+            double minutesAgo = (DateTime.Now - order.OrderDate).TotalMinutes;
+            bool isLate = minutesAgo >= 15;
+
+            <div class="rounded-xl border @(isLate ? "border-error" : "border-outline-variant") bg-surface-container-lowest shadow-sm flex flex-col overflow-hidden">
+                <div class="flex items-center justify-between px-4 py-3 @(isLate ? "bg-error-container" : "bg-primary-container")">
+                    <div>
+                        <p class="font-title-md text-title-md font-bold @(isLate ? "text-on-error-container" : "text-white")">
+                            @(string.IsNullOrEmpty(order.TableNumber) ? "Mang về" : "Bàn " + order.TableNumber)
+                        </p>
+                        <p class="font-body-sm text-body-sm @(isLate ? "text-on-error-container" : "text-white/80")">
+                            @order.OrderCode
+                        </p>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-body-sm text-body-sm font-bold @(isLate ? "text-on-error-container" : "text-white")">
+                            @order.OrderDate.ToString("HH:mm")
+                        </p>
+                        <p class="font-body-sm text-body-sm @(isLate ? "text-on-error-container" : "text-white/80")">
+                            @(minutesAgo < 1 ? "vừa gửi" : $"{(int)minutesAgo} phút trước")
+                        </p>
+                    </div>
+                </div>
+
+                <div class="px-4 py-3 flex-grow">
+                    <ul class="divide-y divide-outline-variant">
+                        @foreach (var item in order.OrderDetails ?? new List<OrderDetail>())
+                        {
+                            <li class="py-2 flex items-center justify-between gap-sm">
+                                <span class="font-body-lg text-body-lg text-on-surface">@item.DishName</span>
+                                <span class="font-title-md text-title-md font-bold text-primary whitespace-nowrap">x@item.Quantity</span>
+                            </li>
+                        }
+                    </ul>
+                    @if (!string.IsNullOrEmpty(order.Note))
+                    {
+                        <p class="mt-sm px-3 py-2 rounded-lg bg-surface-container text-on-surface-variant font-body-sm text-body-sm">
+                            <span class="material-symbols-outlined text-[16px] align-middle">edit_note</span>
+                            @order.Note
+                        </p>
+                    }
+                </div>
+
+                <form asp-controller="Kitchen" asp-action="MarkDone" asp-route-id="@order.OrderId" method="post" class="p-3 pt-0">
+                    <button type="submit" class="w-full py-2 rounded-lg bg-tertiary-fixed text-on-tertiary-fixed-variant font-label-md text-label-md font-bold hover:opacity-90 transition-opacity flex items-center justify-center gap-1">
+                        <span class="material-symbols-outlined text-[18px]">check_circle</span>
+                        Đã xong
+                    </button>
+                </form>
+            </div>
+        }
+    </div>
+}

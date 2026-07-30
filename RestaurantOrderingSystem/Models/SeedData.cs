@@ -21,7 +21,8 @@ namespace RestaurantOrderingSystem.Models
             // Object Explorer) de no tao lai tu dau theo Model moi.
             context.Database.EnsureCreated();
 
-            // Tai khoan mau: admin/123 (vai tro Admin), customer/123 (vai tro Customer)
+            // Tai khoan mau: admin/123 (vai tro Admin), customer/123 (vai tro Customer),
+            // kitchen/123 (vai tro Kitchen - man hinh bep)
             // Khach hang moi nen tu dang ky tai /Account/Register
             if (!context.Users.Any())
             {
@@ -41,6 +42,14 @@ namespace RestaurantOrderingSystem.Models
                         FullName = "Khách hàng demo",
                         PhoneNumber = "0900000001",
                         Role = UserRole.Customer
+                    },
+                    new User
+                    {
+                        UserName = "kitchen",
+                        Password = "kitchen",
+                        FullName = "Nhân viên bếp",
+                        PhoneNumber = "0900000002",
+                        Role = UserRole.Kitchen
                     },
                      new User
                      {
