@@ -38,5 +38,6 @@ namespace RestaurantOrderingSystem.Models
         public bool IsAvailable { get; set; } = true;
 
         public ICollection<OrderDetail>? OrderDetails { get; set; }
+        public ICollection<Review>? Reviews { get; set; }
     }
 }

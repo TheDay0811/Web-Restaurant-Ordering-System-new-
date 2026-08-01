@@ -79,7 +79,11 @@ namespace RestaurantOrderingSystem.Controllers
             {
                 Items = cart,
                 CustomerName = currentUser?.FullName ?? string.Empty,
-                PhoneNumber = currentUser?.PhoneNumber ?? string.Empty
+                PhoneNumber = currentUser?.PhoneNumber ?? string.Empty,
+                // Neu khach da quet ma QR tren ban (xem MenuController.ScanTable)
+                // thi so ban da duoc luu san trong Session - tu dong dien vao day,
+                // khach van co the sua lai neu can (vi du doi ban)
+                TableNumber = HttpContext.Session.GetString("TableNumber")
             };
             return View(model);
         }

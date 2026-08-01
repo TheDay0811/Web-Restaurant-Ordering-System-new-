@@ -1,0 +1,43 @@
+﻿@page
+@model RestaurantOrderingSystem.Pages.Admin.Tables.IndexModel
+@{
+    ViewData["Title"] = "Mã QR bàn";
+}
+
+<div class="flex items-center justify-between mb-lg gap-md flex-wrap">
+    <h1 class="font-headline-lg text-headline-lg text-primary flex items-center gap-2">
+        <span class="material-symbols-outlined text-primary text-[32px]">table_restaurant</span>
+        Mã QR cho từng bàn
+    </h1>
+
+    <form method="get" class="flex items-center gap-2">
+        <label for="SoBan" class="font-label-md text-label-md text-on-surface-variant">Số lượng bàn:</label>
+        <input type="number" id="SoBan" name="SoBan" value="@Model.SoBan" min="1" max="100"
+               class="w-20 px-2 py-1.5 rounded border border-outline-variant font-body-md text-body-md" />
+        <button type="submit"
+                class="inline-flex items-center gap-1 px-4 py-2 rounded font-label-md text-label-md text-white bg-primary hover:bg-primary-container transition-colors">
+            <span class="material-symbols-outlined text-[18px]">refresh</span>
+            Tạo lại
+        </button>
+    </form>
+</div>
+
+<p class="font-body-md text-body-md text-on-surface-variant mb-lg">
+    In mã QR bên dưới và dán lên từng bàn tương ứng. Khách quét mã sẽ tự động vào thực đơn
+    và hệ thống tự nhận diện đúng số bàn khi đặt món, không cần khách tự nhập tay.
+</p>
+
+<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-md">
+    @foreach (var table in Model.Tables)
+    {
+        <div class="flex flex-col items-center gap-2 p-4 rounded-lg border border-outline-variant bg-surface-container-lowest shadow-[0px_2px_10px_rgba(0,0,0,0.04)]">
+            <span class="font-label-lg text-label-lg text-primary font-bold">Bàn @table.TableNumber</span>
+            <img src="data:image/png;base64,@table.Base64Png" alt="QR Bàn @table.TableNumber"
+                 class="w-full aspect-square object-contain" />
+            <a href="?handler=Download&table=@table.TableNumber&SoBan=@Model.SoBan"
+               class="w-full text-center px-3 py-1.5 rounded font-label-md text-label-md text-white bg-primary hover:bg-primary-container transition-colors">
+                Tải PNG
+            </a>
+        </div>
+    }
+</div>

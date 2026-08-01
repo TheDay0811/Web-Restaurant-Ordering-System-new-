@@ -98,6 +98,101 @@
     </div>
 </div>
 
+@* ===== Danh gia mon an ===== *@
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-md md:p-lg mt-lg">
+    <h2 class="font-headline-sm text-headline-sm text-on-background mb-md flex items-center gap-2">
+        <span class="material-symbols-outlined text-secondary">star</span>
+        Đánh giá món ăn
+    </h2>
+
+    @{
+        var reviews = (Model.Reviews ?? new List<Review>()).OrderByDescending(r => r.CreatedDate).ToList();
+        double diemTrungBinh = reviews.Any() ? reviews.Average(r => r.Rating) : 0;
+    }
+
+    <div class="flex items-center gap-3 mb-lg">
+        <span class="font-headline-lg text-headline-lg text-secondary font-bold">@diemTrungBinh.ToString("0.0")</span>
+        <div class="flex flex-col">
+            <div class="flex text-secondary">
+                @for (int i = 1; i <= 5; i++)
+                {
+                    <span class="material-symbols-outlined text-[20px]">@(i <= Math.Round(diemTrungBinh) ? "star" : "star_outline")</span>
+                }
+            </div>
+            <span class="font-body-sm text-body-sm text-on-surface-variant">@reviews.Count đánh giá</span>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="rounded-lg border border-primary/30 bg-primary-fixed/40 px-4 py-2 mb-md font-body-sm text-body-sm text-on-primary-fixed-variant">@TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="rounded-lg border border-error/30 bg-error-container px-4 py-2 mb-md font-body-sm text-body-sm text-on-error-container">@TempData["Error"]</div>
+    }
+
+    @if (ViewBag.CoTheDanhGia == true)
+    {
+        var danhGiaCuaToi = ViewBag.DanhGiaCuaToi as Review;
+        <form asp-controller="Review" asp-action="Submit" method="post" class="mb-lg p-md rounded-lg border border-outline-variant bg-surface-container">
+            <input type="hidden" name="dishId" value="@Model.DishId" />
+            <div class="font-label-md text-label-md text-on-surface mb-2">
+                @(danhGiaCuaToi != null ? "Cập nhật đánh giá của bạn" : "Bạn đã dùng món này - hãy đánh giá nhé!")
+            </div>
+            <div class="flex items-center gap-2 mb-sm">
+                <label for="rating" class="font-label-md text-label-md text-on-surface">Số sao:</label>
+                <select name="rating" id="rating" class="px-3 py-2 rounded border border-outline-variant font-body-md text-body-md">
+                    @for (int i = 5; i >= 1; i--)
+                    {
+                        <option value="@i" selected="@(danhGiaCuaToi != null && danhGiaCuaToi.Rating == i)">@i sao</option>
+                    }
+                </select>
+            </div>
+            <textarea name="comment" rows="2" placeholder="Nhận xét của bạn (không bắt buộc)"
+                      class="w-full px-3 py-2 rounded border border-outline-variant font-body-md text-body-md mb-sm">@(danhGiaCuaToi?.Comment)</textarea>
+            <button type="submit" class="px-4 py-2 rounded font-label-md text-label-md text-white bg-primary hover:bg-primary-container transition-colors">
+                Gửi đánh giá
+            </button>
+        </form>
+    }
+    else if (User.IsInRole(UserRole.Customer))
+    {
+        <p class="font-body-sm text-body-sm text-on-surface-variant mb-lg">
+            Đặt và hoàn tất thanh toán món này để có thể đánh giá.
+        </p>
+    }
+
+    @if (!reviews.Any())
+    {
+        <p class="font-body-md text-body-md text-on-surface-variant">Chưa có đánh giá nào cho món này.</p>
+    }
+    else
+    {
+        <div class="flex flex-col gap-md">
+            @foreach (var r in reviews)
+            {
+                <div class="border-b border-outline-variant pb-md">
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="font-label-md text-label-md text-on-surface font-bold">@(r.User?.FullName ?? "Khách hàng")</span>
+                        <span class="font-body-sm text-body-sm text-on-surface-variant">@r.CreatedDate.ToString("dd/MM/yyyy")</span>
+                    </div>
+                    <div class="flex text-secondary mb-1">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            <span class="material-symbols-outlined text-[16px]">@(i <= r.Rating ? "star" : "star_outline")</span>
+                        }
+                    </div>
+                    @if (!string.IsNullOrEmpty(r.Comment))
+                    {
+                        <p class="font-body-md text-body-md text-on-surface-variant">@r.Comment</p>
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>
+
 <script>
     function stepQty(button, delta) {
         const container = button.parentElement;

@@ -45,5 +45,6 @@ namespace RestaurantOrderingSystem.Models
         public DateTime CreatedDate { get; set; } = DateTime.Now;
 
         public ICollection<Order>? Orders { get; set; }
+        public ICollection<Review>? Reviews { get; set; }
     }
 }

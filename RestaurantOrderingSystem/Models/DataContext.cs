@@ -11,6 +11,7 @@ namespace RestaurantOrderingSystem.Models
         public DbSet<Order> Orders => Set<Order>();
         public DbSet<OrderDetail> OrderDetails => Set<OrderDetail>();
         public DbSet<User> Users => Set<User>();
+        public DbSet<Review> Reviews => Set<Review>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -48,6 +49,25 @@ namespace RestaurantOrderingSystem.Models
                 .WithMany(d => d.OrderDetails)
                 .HasForeignKey(od => od.DishId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // 1 Dish - nhieu Review, 1 User - nhieu Review
+            modelBuilder.Entity<Review>()
+                .HasOne(r => r.Dish)
+                .WithMany(d => d.Reviews)
+                .HasForeignKey(r => r.DishId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Review>()
+                .HasOne(r => r.User)
+                .WithMany(u => u.Reviews)
+                .HasForeignKey(r => r.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Moi khach chi duoc 1 danh gia cho 1 mon - danh gia lai se update de cu,
+            // khong tao them dong moi (xem ReviewController.Submit)
+            modelBuilder.Entity<Review>()
+                .HasIndex(r => new { r.DishId, r.UserId })
+                .IsUnique();
         }
     }
 }
