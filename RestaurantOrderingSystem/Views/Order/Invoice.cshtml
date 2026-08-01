@@ -64,8 +64,11 @@
         </table>
     </div>
 
-    <a asp-controller="Menu" asp-action="Index"
-       class="inline-block px-4 py-2 rounded font-label-md text-label-md bg-secondary text-white hover:bg-secondary/90 transition-colors">
-        Đặt thêm món khác
-    </a>
+    @if (!User.IsInRole(UserRole.Admin))
+    {
+        <a asp-controller="Menu" asp-action="Index"
+           class="inline-block px-4 py-2 rounded font-label-md text-label-md bg-secondary text-white hover:bg-secondary/90 transition-colors">
+            Đặt thêm món khác
+        </a>
+    }
 </div>

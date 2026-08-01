@@ -140,14 +140,24 @@
             <div class="font-label-md text-label-md text-on-surface mb-2">
                 @(danhGiaCuaToi != null ? "Cập nhật đánh giá của bạn" : "Bạn đã dùng món này - hãy đánh giá nhé!")
             </div>
-            <div class="flex items-center gap-2 mb-sm">
-                <label for="rating" class="font-label-md text-label-md text-on-surface">Số sao:</label>
-                <select name="rating" id="rating" class="px-3 py-2 rounded border border-outline-variant font-body-md text-body-md">
-                    @for (int i = 5; i >= 1; i--)
+            <div class="mb-sm">
+                <label class="font-label-md text-label-md text-on-surface block mb-1">Số sao:</label>
+                @{
+                    int initialRating = danhGiaCuaToi?.Rating ?? 5;
+                }
+                <div id="starRatingPicker" class="flex items-center gap-1">
+                    @for (int i = 1; i <= 5; i++)
                     {
-                        <option value="@i" selected="@(danhGiaCuaToi != null && danhGiaCuaToi.Rating == i)">@i sao</option>
+                        bool filled = i <= initialRating;
+                        <button type="button"
+                                class="star-btn p-1 hover:scale-110 transition-transform @(filled ? "text-secondary" : "text-outline-variant")"
+                                data-value="@i" aria-label="@i sao">
+                            <span class="material-symbols-outlined text-[28px] pointer-events-none"
+                                  style="font-variation-settings: 'FILL' @(filled ? 1 : 0), 'wght' 500, 'GRAD' 0, 'opsz' 24;">@(filled ? "star" : "star_outline")</span>
+                        </button>
                     }
-                </select>
+                </div>
+                <input type="hidden" name="rating" id="ratingInput" value="@initialRating" />
             </div>
             <textarea name="comment" rows="2" placeholder="Nhận xét của bạn (không bắt buộc)"
                       class="w-full px-3 py-2 rounded border border-outline-variant font-body-md text-body-md mb-sm">@(danhGiaCuaToi?.Comment)</textarea>
@@ -155,12 +165,39 @@
                 Gửi đánh giá
             </button>
         </form>
-    }
-    else if (User.IsInRole(UserRole.Customer))
-    {
-        <p class="font-body-sm text-body-sm text-on-surface-variant mb-lg">
-            Đặt và hoàn tất thanh toán món này để có thể đánh giá.
-        </p>
+        <script>
+                (function() {
+                    var picker = document.getElementById('starRatingPicker');
+                    var input = document.getElementById('ratingInput');
+                    if (!picker || !input) return;
+                    var buttons = picker.querySelectorAll('.star-btn');
+
+                    function paint(value) {
+                        buttons.forEach(function(btn) {
+                            var icon = btn.querySelector('span');
+                            var v = parseInt(btn.dataset.value, 10);
+                            var filled = v <= value;
+                            icon.textContent = filled ? 'star' : 'star_outline';
+                            icon.style.fontVariationSettings = "'FILL' " + (filled ? 1 : 0) + ", 'wght' 500, 'GRAD' 0, 'opsz' 24";
+                            btn.classList.toggle('text-secondary', filled);
+                            btn.classList.toggle('text-outline-variant', !filled);
+                        });
+                    }
+
+                    buttons.forEach(function(btn) {
+                        btn.addEventListener('click', function() {
+                            input.value = btn.dataset.value;
+                            paint(parseInt(btn.dataset.value, 10));
+                        });
+                        btn.addEventListener('mouseenter', function() {
+                            paint(parseInt(btn.dataset.value, 10));
+                        });
+                    });
+                    picker.addEventListener('mouseleave', function() {
+                        paint(parseInt(input.value, 10));
+                    });
+                })();
+        </script>
     }
 
     @if (!reviews.Any())

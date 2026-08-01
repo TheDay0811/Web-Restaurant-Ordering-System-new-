@@ -6,8 +6,8 @@ using System.Security.Claims;
 
 namespace RestaurantOrderingSystem.Controllers
 {
-    // Danh gia mon an - chi Customer da dang nhap va da THUC SU dat + thanh toan
-    // mon do moi duoc danh gia, tranh danh gia khong (spam)
+    // Danh gia mon an - chi Customer da dang nhap moi duoc danh gia
+    // (khong yeu cau phai dat/thanh toan mon truoc)
     [Authorize(Roles = UserRole.Customer)]
     public class ReviewController : Controller
     {
@@ -28,21 +28,6 @@ namespace RestaurantOrderingSystem.Controllers
             if (rating < 1 || rating > 5)
             {
                 TempData["Error"] = "Vui lòng chọn số sao từ 1 đến 5.";
-                return RedirectToAction("Details", "Menu", new { id = dishId });
-            }
-
-            // Kiem tra khach da tung dat mon nay va don da o trang thai "Da thanh toan" chua -
-            // chi khach hang thuc su da dung mon moi duoc danh gia
-            bool daMuaMon = await context.OrderDetails
-                .Include(od => od.Order)
-                .AnyAsync(od => od.DishId == dishId
-                    && od.Order != null
-                    && od.Order.UserId == CurrentUserId
-                    && od.Order.Status == OrderStatus.Paid);
-
-            if (!daMuaMon)
-            {
-                TempData["Error"] = "Bạn cần đặt và hoàn tất thanh toán món này trước khi đánh giá.";
                 return RedirectToAction("Details", "Menu", new { id = dishId });
             }
 

@@ -60,19 +60,14 @@ namespace RestaurantOrderingSystem.Controllers
             if (dish == null)
                 return NotFound();
 
-            // Neu la Customer da dang nhap: kiem tra co du dieu kien danh gia khong
-            // (da dat va thanh toan mon nay), va lay danh gia cu (neu co) de dien san len form
+            // Neu la Customer da dang nhap: cho phep danh gia truc tiep, khong can
+            // kiem tra da dat/thanh toan mon hay chua. Van lay danh gia cu (neu co)
+            // de dien san len form cho khach cap nhat lai.
             if (User.Identity != null && User.Identity.IsAuthenticated && User.IsInRole(UserRole.Customer))
             {
                 int currentUserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-                ViewBag.CoTheDanhGia = await context.OrderDetails
-                    .Include(od => od.Order)
-                    .AnyAsync(od => od.DishId == id
-                        && od.Order != null
-                        && od.Order.UserId == currentUserId
-                        && od.Order.Status == OrderStatus.Paid);
-
+                ViewBag.CoTheDanhGia = true;
                 ViewBag.DanhGiaCuaToi = dish.Reviews?.FirstOrDefault(r => r.UserId == currentUserId);
             }
 
