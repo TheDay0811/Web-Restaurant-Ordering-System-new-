@@ -1,0 +1,137 @@
+﻿@page
+@model RestaurantOrderingSystem.Pages.Admin.Dashboard.IndexModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<h1 class="font-headline-lg text-headline-lg text-primary mb-lg">Dashboard doanh thu</h1>
+
+<!-- FORM LỌC -->
+<form method="get" class="flex flex-wrap gap-sm items-end mb-lg bg-surface-container-lowest p-4 rounded-lg border border-outline-variant">
+    <div>
+        <label class="block text-body-sm mb-1">Từ ngày</label>
+        <input type="date" name="FromDate" value="@Model.FromDate?.ToString("yyyy-MM-dd")" class="border rounded px-2 py-1" />
+    </div>
+    <div>
+        <label class="block text-body-sm mb-1">Đến ngày</label>
+        <input type="date" name="ToDate" value="@Model.ToDate?.ToString("yyyy-MM-dd")" class="border rounded px-2 py-1" />
+    </div>
+    <div>
+        <label class="block text-body-sm mb-1">Danh mục</label>
+        <select name="CategoryId" class="border rounded px-2 py-1">
+            <option value="">-- Tất cả --</option>
+            @foreach (var c in Model.Categories)
+            {
+                <option value="@c.CategoryId" selected="@(Model.CategoryId == c.CategoryId)">@c.Name</option>
+            }
+        </select>
+    </div>
+    <button type="submit" class="px-4 py-2 bg-primary text-white rounded">Lọc</button>
+    <a asp-page="Index" class="px-4 py-2 border rounded">Xóa lọc</a>
+</form>
+
+<!-- SỐ LIỆU TỔNG -->
+<div class="grid grid-cols-2 gap-md mb-lg">
+    <div class="p-4 bg-surface-container-lowest rounded-lg border border-outline-variant">
+        <p class="text-body-sm text-on-surface-variant">Tổng doanh thu</p>
+        <p class="text-headline-lg text-primary font-bold">@Model.TotalRevenue.ToString("N0") đ</p>
+    </div>
+    <div class="p-4 bg-surface-container-lowest rounded-lg border border-outline-variant">
+        <p class="text-body-sm text-on-surface-variant">Số hóa đơn</p>
+        <p class="text-headline-lg text-primary font-bold">@Model.TotalOrders</p>
+    </div>
+</div>
+
+<!-- CHARTS -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+    <div class="p-4 bg-surface-container-lowest rounded-lg border border-outline-variant">
+        <h2 class="mb-2 font-bold">Doanh thu theo ngày</h2>
+        <div style="height: 220px;">
+            <canvas id="chartByDate"></canvas>
+        </div>
+    </div>
+    <div class="p-4 bg-surface-container-lowest rounded-lg border border-outline-variant">
+        <h2 class="mb-2 font-bold">Doanh thu theo danh mục</h2>
+        <div style="height: 260px;">
+            <canvas id="chartByCategory"></canvas>
+        </div>
+    </div>
+    <div class="p-4 bg-surface-container-lowest rounded-lg border border-outline-variant">
+        <h2 class="mb-2 font-bold">Doanh thu theo món</h2>
+        <div style="height: 220px;">
+            <canvas id="chartByDish"></canvas>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script id="dashboard-data" type="application/json">
+        @Html.Raw(System.Text.Json.JsonSerializer.Serialize(new
+        {
+                ByDate = Model.ByDate,
+                ByCategory = Model.ByCategory,
+                ByDish = Model.ByDish.Take(10)
+        }))
+    </script>
+
+    <script>
+        const dashboardData = JSON.parse(document.getElementById('dashboard-data').textContent);
+        const byDate = dashboardData.ByDate;
+        const byCategory = dashboardData.ByCategory;
+        const byDish = dashboardData.ByDish;
+
+        new Chart(document.getElementById('chartByDate'), {
+            type: 'line',
+            data: {
+                labels: byDate.map(x => new Date(x.Date).toLocaleDateString('vi-VN')),
+                datasets: [{ label: 'Doanh thu', data: byDate.map(x => x.Revenue) }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+
+        new Chart(document.getElementById('chartByCategory'), {
+            type: 'pie',
+            data: {
+                labels: byCategory.map(x => x.CategoryName),
+                datasets: [{ data: byCategory.map(x => x.Revenue) }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'left',
+                        align: 'start',
+                        labels: {
+                            boxWidth: 16,
+                            padding: 16
+                        }
+                    }
+                }
+            }
+        });
+
+        new Chart(document.getElementById('chartByDish'), {
+            type: 'bar',
+            data: {
+                labels: byDish.map(x => x.DishName),
+                datasets: [{ label: 'Doanh thu', data: byDish.map(x => x.Revenue) }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    </script>
+}
