@@ -1,0 +1,181 @@
+﻿@page
+@model RestaurantOrderingSystem.Pages.Admin.Dashboard.IndexModel
+@{
+    ViewData["Title"] = "Dashboard";
+
+    string ngayJson = System.Text.Json.JsonSerializer.Serialize(Model.DoanhThuTheoNgay.Select(x => x.Ngay.ToString("dd/MM")));
+    string doanhThuNgayJson = System.Text.Json.JsonSerializer.Serialize(Model.DoanhThuTheoNgay.Select(x => x.DoanhThu));
+    string tenMonJson = System.Text.Json.JsonSerializer.Serialize(Model.DoanhThuTheoMon.Select(x => x.TenMon));
+    string doanhThuMonJson = System.Text.Json.JsonSerializer.Serialize(Model.DoanhThuTheoMon.Select(x => x.DoanhThu));
+    string tenDanhMucJson = System.Text.Json.JsonSerializer.Serialize(Model.DoanhThuTheoDanhMuc.Select(x => x.TenDanhMuc));
+    string doanhThuDanhMucJson = System.Text.Json.JsonSerializer.Serialize(Model.DoanhThuTheoDanhMuc.Select(x => x.DoanhThu));
+}
+
+<div class="flex items-center justify-between mb-lg gap-md flex-wrap">
+    <h1 class="font-headline-lg text-headline-lg text-primary flex items-center gap-2">
+        <span class="material-symbols-outlined text-primary text-[32px]">bar_chart</span>
+        Dashboard thống kê
+    </h1>
+
+    <form method="get" class="flex items-center gap-2 flex-wrap">
+        <label class="font-label-md text-label-md text-on-surface-variant">Từ ngày:</label>
+        <input type="date" name="TuNgay" value="@Model.TuNgay?.ToString("yyyy-MM-dd")"
+               class="px-2 py-1.5 rounded border border-outline-variant font-body-md text-body-md" />
+        <label class="font-label-md text-label-md text-on-surface-variant">Đến ngày:</label>
+        <input type="date" name="DenNgay" value="@Model.DenNgay?.ToString("yyyy-MM-dd")"
+               class="px-2 py-1.5 rounded border border-outline-variant font-body-md text-body-md" />
+        <button type="submit"
+                class="inline-flex items-center gap-1 px-4 py-2 rounded font-label-md text-label-md text-white bg-primary hover:bg-primary-container transition-colors">
+            <span class="material-symbols-outlined text-[18px]">filter_alt</span>
+            Lọc
+        </button>
+    </form>
+</div>
+
+@* ===== 4 the so lieu tong quan ===== *@
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-md mb-lg">
+    <div class="p-lg rounded-lg border border-outline-variant bg-surface-container-lowest shadow-[0px_2px_10px_rgba(0,0,0,0.04)]">
+        <div class="font-label-md text-label-md text-on-surface-variant uppercase mb-1">Tổng doanh thu</div>
+        <div class="font-headline-lg text-headline-lg text-primary font-bold">@Model.TongDoanhThu.ToString("N0") đ</div>
+    </div>
+    <div class="p-lg rounded-lg border border-outline-variant bg-surface-container-lowest shadow-[0px_2px_10px_rgba(0,0,0,0.04)]">
+        <div class="font-label-md text-label-md text-on-surface-variant uppercase mb-1">Tổng số đơn</div>
+        <div class="font-headline-lg text-headline-lg text-primary font-bold">@Model.TongSoDon</div>
+    </div>
+    <div class="p-lg rounded-lg border border-outline-variant bg-surface-container-lowest shadow-[0px_2px_10px_rgba(0,0,0,0.04)]">
+        <div class="font-label-md text-label-md text-on-surface-variant uppercase mb-1">Doanh thu hôm nay</div>
+        <div class="font-headline-lg text-headline-lg text-secondary font-bold">@Model.DoanhThuHomNay.ToString("N0") đ</div>
+    </div>
+    <div class="p-lg rounded-lg border border-outline-variant bg-surface-container-lowest shadow-[0px_2px_10px_rgba(0,0,0,0.04)]">
+        <div class="font-label-md text-label-md text-on-surface-variant uppercase mb-1">Đơn hôm nay</div>
+        <div class="font-headline-lg text-headline-lg text-secondary font-bold">@Model.SoDonHomNay</div>
+    </div>
+</div>
+
+@* ===== Bieu do doanh thu theo ngay ===== *@
+<div class="p-lg rounded-lg border border-outline-variant bg-surface-container-lowest shadow-[0px_2px_10px_rgba(0,0,0,0.04)] mb-lg">
+    <h2 class="font-title-md text-title-md text-on-surface font-bold mb-md">Doanh thu theo ngày</h2>
+    <canvas id="chartNgay" height="90"></canvas>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-md mb-lg">
+    @* ===== Bieu do doanh thu theo mon ===== *@
+    <div class="p-lg rounded-lg border border-outline-variant bg-surface-container-lowest shadow-[0px_2px_10px_rgba(0,0,0,0.04)]">
+        <h2 class="font-title-md text-title-md text-on-surface font-bold mb-md">Doanh thu theo món (top 10)</h2>
+        @if (Model.DoanhThuTheoMon.Any())
+        {
+            <canvas id="chartMon" height="220"></canvas>
+        }
+        else
+        {
+            <p class="font-body-sm text-body-sm text-on-surface-variant">Chưa có dữ liệu trong khoảng thời gian này.</p>
+        }
+    </div>
+
+    @* ===== Bieu do doanh thu theo danh muc ===== *@
+    <div class="p-lg rounded-lg border border-outline-variant bg-surface-container-lowest shadow-[0px_2px_10px_rgba(0,0,0,0.04)]">
+        <h2 class="font-title-md text-title-md text-on-surface font-bold mb-md">Doanh thu theo danh mục</h2>
+        @if (Model.DoanhThuTheoDanhMuc.Any())
+        {
+            <canvas id="chartDanhMuc" height="220"></canvas>
+        }
+        else
+        {
+            <p class="font-body-sm text-body-sm text-on-surface-variant">Chưa có dữ liệu trong khoảng thời gian này.</p>
+        }
+    </div>
+</div>
+
+@* ===== Bang chi tiet doanh thu theo mon ===== *@
+<div class="overflow-x-auto rounded-lg border border-outline-variant mb-lg">
+    <table class="w-full">
+        <thead>
+            <tr class="bg-surface-container-low">
+                <th class="font-label-md text-label-md uppercase text-on-surface-variant text-left px-md py-sm">Món ăn</th>
+                <th class="font-label-md text-label-md uppercase text-on-surface-variant text-center px-md py-sm">Số lượng bán</th>
+                <th class="font-label-md text-label-md uppercase text-on-surface-variant text-right px-md py-sm">Doanh thu</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var mon in Model.DoanhThuTheoMon)
+            {
+                <tr class="border-t border-outline-variant">
+                    <td class="px-md py-sm font-body-sm text-body-sm text-on-surface">@mon.TenMon</td>
+                    <td class="px-md py-sm font-body-sm text-body-sm text-on-surface text-center">@mon.SoLuongBan</td>
+                    <td class="px-md py-sm font-body-sm text-body-sm text-on-surface text-right">@mon.DoanhThu.ToString("N0") đ</td>
+                </tr>
+            }
+            @if (!Model.DoanhThuTheoMon.Any())
+            {
+                <tr><td colspan="3" class="px-md py-sm text-center font-body-sm text-body-sm text-on-surface-variant">Chưa có dữ liệu.</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+    <script>
+        const mauChinh = '#002068';
+        const mauPhu = '#904d00';
+        const mauNen = ['#002068', '#904d00', '#005230', '#93000a', '#3557bc', '#7adaa1', '#ffa454', '#8aa4ff', '#00164e', '#ba1a1a'];
+
+        // ----- Doanh thu theo ngay (line chart) -----
+        new Chart(document.getElementById('chartNgay'), {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(ngayJson),
+                datasets: [{
+                    label: 'Doanh thu (đ)',
+                    data: @Html.Raw(doanhThuNgayJson),
+                    borderColor: mauChinh,
+                    backgroundColor: mauChinh + '22',
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { display: false } } }
+        });
+
+        @if (Model.DoanhThuTheoMon.Any())
+        {
+            <text>
+        // ----- Doanh thu theo mon (bar chart) -----
+        new Chart(document.getElementById('chartMon'), {
+            type: 'bar',
+            data: {
+                labels: @Html.Raw(tenMonJson),
+                datasets: [{
+                    label: 'Doanh thu (đ)',
+                    data: @Html.Raw(doanhThuMonJson),
+                    backgroundColor: mauPhu
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                plugins: { legend: { display: false } }
+            }
+        });
+            </text>
+        }
+
+        @if (Model.DoanhThuTheoDanhMuc.Any())
+        {
+            <text>
+        // ----- Doanh thu theo danh muc (doughnut chart) -----
+        new Chart(document.getElementById('chartDanhMuc'), {
+            type: 'doughnut',
+            data: {
+                labels: @Html.Raw(tenDanhMucJson),
+                datasets: [{
+                    data: @Html.Raw(doanhThuDanhMucJson),
+                    backgroundColor: mauNen
+                }]
+            },
+            options: { responsive: true }
+        });
+            </text>
+        }
+    </script>
+}

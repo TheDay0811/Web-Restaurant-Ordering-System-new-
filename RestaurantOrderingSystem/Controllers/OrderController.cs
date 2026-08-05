@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using QRCoder;
 using RestaurantOrderingSystem.Models;
 using System.Security.Claims;
 
@@ -15,10 +17,12 @@ namespace RestaurantOrderingSystem.Controllers
         // trong Session, vi du "cart_5" = 2 (khong dung JSON)
         private const string CartKeyPrefix = "cart_";
         private readonly DataContext context;
+        private readonly IConfiguration configuration;
 
-        public OrderController(DataContext ctx)
+        public OrderController(DataContext ctx, IConfiguration config)
         {
             context = ctx;
+            configuration = config;
         }
 
         // Doc gio hang tu Session - cach lam giong het CartController.GetCartAsync()
@@ -62,6 +66,34 @@ namespace RestaurantOrderingSystem.Controllers
         // luon co claim NameIdentifier, khong lo bi loi khi Parse.
         private int CurrentUserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
+        // Dung cho dropdown chon ban o trang Checkout, thay vi de khach tu go tay
+        // (de nham/sai dinh dang). Dinh dang "01", "02"... GIONG HET voi Admin/Tables
+        // (trang tao QR ban) va MenuController.ScanTable, de neu khach quet QR ban
+        // truoc thi gia tri co san trong Session se khop dung voi 1 option trong list.
+        // Muon doi so luong ban thi sua RestaurantSettings:TableCount trong appsettings.json.
+        private List<SelectListItem> BuildTableOptions(string? selectedValue)
+        {
+            int tableCount = configuration.GetValue<int?>("RestaurantSettings:TableCount") ?? 10;
+
+            var options = new List<SelectListItem>
+            {
+                new SelectListItem("Mang về (không ngồi bàn)", "")
+            };
+
+            for (int i = 1; i <= tableCount; i++)
+            {
+                string value = i.ToString("D2");
+                options.Add(new SelectListItem($"Bàn {value}", value));
+            }
+
+            // Khach da quet QR ban truoc do (hoac dang sua lai form sau khi loi validate)
+            // thi tu dong to dam dung option tuong ung
+            foreach (var opt in options)
+                opt.Selected = opt.Value == (selectedValue ?? "");
+
+            return options;
+        }
+
         // GET: /Order/Checkout
         [Authorize(Roles = UserRole.Customer)]
         public async Task<IActionResult> Checkout()
@@ -85,6 +117,7 @@ namespace RestaurantOrderingSystem.Controllers
                 // khach van co the sua lai neu can (vi du doi ban)
                 TableNumber = HttpContext.Session.GetString("TableNumber")
             };
+            ViewBag.TableOptions = BuildTableOptions(model.TableNumber);
             return View(model);
         }
 
@@ -104,7 +137,10 @@ namespace RestaurantOrderingSystem.Controllers
             }
 
             if (!ModelState.IsValid)
+            {
+                ViewBag.TableOptions = BuildTableOptions(model.TableNumber);
                 return View(model);
+            }
 
             var order = new Order
             {
@@ -165,6 +201,40 @@ namespace RestaurantOrderingSystem.Controllers
             if (!isAdmin && !isOwner)
                 return Forbid(); // Khong du quyen -> chuyen huong sang trang AccessDenied
 
+            // ===== QR thanh toan VietQR (Sacombank, cau hinh trong appsettings.json) =====
+            // Dung Quick Link cua VietQR - tra ve thang anh QR chuyen khoan that,
+            // da co san so tien va noi dung, khach chi can mo app ngan hang quet la duoc.
+            // Chi hien QR thanh toan khi hoa don CHUA thanh toan (Paid/Cancelled thi khong can nua)
+            if (order.Status != OrderStatus.Paid && order.Status != OrderStatus.Cancelled)
+            {
+                string bankBin = configuration["VietQrPayment:BankBin"] ?? "";
+                string accountNumber = configuration["VietQrPayment:AccountNumber"] ?? "";
+                string accountName = configuration["VietQrPayment:AccountName"] ?? "";
+
+                string addInfo = Uri.EscapeDataString($"Thanh toan hoa don {order.OrderCode}");
+                string accNameEncoded = Uri.EscapeDataString(accountName);
+
+                ViewBag.VietQrUrl =
+                    $"https://img.vietqr.io/image/{bankBin}-{accountNumber}-compact2.png" +
+                    $"?amount={(long)order.TotalAmount}&addInfo={addInfo}&accountName={accNameEncoded}";
+                ViewBag.BankName = configuration["VietQrPayment:BankName"];
+                ViewBag.AccountNumber = accountNumber;
+                ViewBag.AccountName = accountName;
+            }
+
+            // ===== QR "tong hop" hoa don: ma hoa link mo trang hoa don nay =====
+            // Chon phuong an nhet LINK thay vi nhet toan bo text chi tiet mon,
+            // vi nhet nhieu text se lam QR qua day, kho quet khi hoa don nhieu mon.
+            // Quet ma nay se mo dung trang hoa don voi day du, moi nhat tu database.
+            string invoiceUrl = $"{Request.Scheme}://{Request.Host}/Order/Invoice/{order.OrderId}";
+            using (var qrGenerator = new QRCodeGenerator())
+            using (var qrCodeData = qrGenerator.CreateQrCode(invoiceUrl, QRCodeGenerator.ECCLevel.Q))
+            {
+                var qrCode = new PngByteQRCode(qrCodeData);
+                ViewBag.InvoiceQrBase64 = Convert.ToBase64String(qrCode.GetGraphic(10));
+            }
+            ViewBag.InvoiceUrl = invoiceUrl;
+
             return View(order);
         }
 
@@ -206,6 +276,24 @@ namespace RestaurantOrderingSystem.Controllers
                 await context.SaveChangesAsync();
             }
             return RedirectToAction("History");
+        }
+
+        // POST: /Order/MarkPaid - Admin xac nhan da nhan duoc tien (bam ngay tren
+        // trang Hoa don sau khi khach chuyen khoan qua QR). Chi doi Status -> Paid,
+        // khong dong cham gi khac. Sau khi xac nhan, quay lai chinh trang hoa don
+        // do de Admin thay ngay ket qua (badge doi mau + QR chuyen tien tu bien mat).
+        [Authorize(Roles = UserRole.Admin)]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MarkPaid(int id)
+        {
+            var order = await context.Orders.FindAsync(id);
+            if (order != null && order.Status != OrderStatus.Cancelled)
+            {
+                order.Status = OrderStatus.Paid;
+                await context.SaveChangesAsync();
+            }
+            return RedirectToAction("Invoice", new { id });
         }
     }
 }

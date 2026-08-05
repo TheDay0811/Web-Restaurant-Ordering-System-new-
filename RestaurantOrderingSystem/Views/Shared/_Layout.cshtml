@@ -120,10 +120,14 @@
                 Nhà Hàng HUFLIT
             </a>
             <nav class="hidden md:flex gap-md">
-                <a class="@NavLinkClass("Home")" asp-controller="Home" asp-action="Index">Trang chủ</a>
-                <a class="@NavLinkClass("Menu")" asp-controller="Menu" asp-action="Index">Thực đơn</a>
+                @if (!isAdmin)
+                {
+                    <a class="@NavLinkClass("Home")" asp-controller="Home" asp-action="Index">Trang chủ</a>
+                    <a class="@NavLinkClass("Menu")" asp-controller="Menu" asp-action="Index">Thực đơn</a>
+                }
                 @if (isAdmin)
                 {
+                    <a class="@(currentPage.StartsWith("/Admin/Dashboard") ? "text-white font-bold border-b-2 border-secondary-container pb-1 py-1 transition-all duration-200" : "text-white border-b-2 border-transparent pb-1 py-1 transition-all duration-200")" asp-area="" asp-page="/Admin/Dashboard/Index">Dashboard</a>
                     <a class="@(currentPage.StartsWith("/Admin/Dishes") ? "text-white font-bold border-b-2 border-secondary-container pb-1 py-1 transition-all duration-200" : "text-white border-b-2 border-transparent pb-1 py-1 transition-all duration-200")" asp-area="" asp-page="/Admin/Dishes/Index">Món ăn</a>
                     <a class="@(currentPage.StartsWith("/Admin/Categories") ? "text-white font-bold border-b-2 border-secondary-container pb-1 py-1 transition-all duration-200" : "text-white border-b-2 border-transparent pb-1 py-1 transition-all duration-200")" asp-area="" asp-page="/Admin/Categories/Index">Danh mục</a>
                     <a class="@NavLinkClass("Order")" asp-controller="Order" asp-action="History">Hóa đơn</a>
@@ -185,8 +189,11 @@
                     <span class="material-symbols-outlined text-on-surface">close</span>
                 </button>
             </div>
-            <a class="@MobileNavLinkClass("Home")" asp-controller="Home" asp-action="Index">Trang chủ</a>
-            <a class="@MobileNavLinkClass("Menu")" asp-controller="Menu" asp-action="Index">Thực đơn</a>
+            @if (!isAdmin)
+            {
+                <a class="@MobileNavLinkClass("Home")" asp-controller="Home" asp-action="Index">Trang chủ</a>
+                <a class="@MobileNavLinkClass("Menu")" asp-controller="Menu" asp-action="Index">Thực đơn</a>
+            }
             @if (isCustomer)
             {
                 <a class="text-on-surface font-label-md text-label-md py-2 border-b border-surface-variant flex justify-between items-center" asp-controller="Cart" asp-action="Index">
@@ -200,6 +207,7 @@
             }
             @if (isAdmin)
             {
+                <a class="text-on-surface font-label-md text-label-md py-2 border-b border-surface-variant" asp-area="" asp-page="/Admin/Dashboard/Index">Dashboard</a>
                 <a class="text-on-surface font-label-md text-label-md py-2 border-b border-surface-variant" asp-area="" asp-page="/Admin/Dishes/Index">Quản lý món ăn</a>
                 <a class="text-on-surface font-label-md text-label-md py-2 border-b border-surface-variant" asp-area="" asp-page="/Admin/Categories/Index">Quản lý danh mục</a>
                 <a class="text-on-surface font-label-md text-label-md py-2 border-b border-surface-variant" asp-controller="Order" asp-action="History">Hóa đơn</a>

@@ -47,9 +47,12 @@ else
                             <span class="inline-block px-2 py-1 rounded-full font-label-md text-label-md uppercase @BadgeClass(order.Status)">@order.Status</span>
                         </td>
                         <td class="px-md py-sm">
+                            @{
+                                bool daThanhToan = order.Status == OrderStatus.Paid || order.Status == OrderStatus.Cancelled;
+                            }
                             <a asp-controller="Order" asp-action="Invoice" asp-route-id="@order.OrderId"
-                               class="px-3 py-1 rounded font-label-md text-label-md bg-primary text-white hover:bg-primary-container transition-colors">
-                                Xem hóa đơn
+                               class="px-3 py-1 rounded font-label-md text-label-md text-white transition-colors @(daThanhToan ? "bg-primary hover:bg-primary-container" : "bg-secondary hover:bg-secondary/90")">
+                                @(daThanhToan ? "Xem hóa đơn" : "Thanh toán")
                             </a>
                         </td>
                     </tr>

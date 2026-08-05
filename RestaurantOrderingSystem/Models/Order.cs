@@ -61,6 +61,13 @@ namespace RestaurantOrderingSystem.Models
         [Display(Name = "Bếp đã xong")]
         public bool KitchenDone { get; set; } = false;
 
+        // Ly do huy don - chi co gia tri khi Status = Cancelled va don bi huy
+        // tu man hinh Bep (xem KitchenController.Cancel). Bat buoc phai nhap
+        // ly do moi huy duoc, xem validate o KitchenController.
+        [StringLength(300)]
+        [Display(Name = "Lý do hủy")]
+        public string? CancelReason { get; set; }
+
         public ICollection<OrderDetail>? OrderDetails { get; set; }
     }
 }

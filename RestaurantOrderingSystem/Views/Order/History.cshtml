@@ -1,6 +1,15 @@
 @model IEnumerable<Order>
 @{
     ViewData["Title"] = "Quản lý hóa đơn";
+
+    string BadgeClass(OrderStatus s) => s switch
+    {
+        OrderStatus.Pending => "bg-secondary-container/40 text-on-secondary-container",
+        OrderStatus.Confirmed => "bg-primary-fixed text-on-primary-fixed-variant",
+        OrderStatus.Paid => "bg-tertiary-fixed text-on-tertiary-fixed-variant",
+        OrderStatus.Cancelled => "bg-error-container text-on-error-container",
+        _ => "bg-surface-variant text-on-surface-variant"
+    };
 }
 
 <h1 class="font-headline-lg text-headline-lg text-primary flex items-center gap-2 mb-lg">
@@ -39,21 +48,23 @@ else
                         <td class="px-4 py-3 font-body-lg text-body-lg text-on-surface-variant">@order.OrderDate.ToString("HH:mm dd/MM/yyyy")</td>
                         <td class="px-4 py-3 font-title-md text-title-md text-secondary font-bold">@order.TotalAmount.ToString("N0") đ</td>
                         <td class="px-4 py-3">
-                            <form asp-controller="Order" asp-action="UpdateStatus" method="post" class="flex items-center gap-2">
-                                <input type="hidden" name="id" value="@order.OrderId" />
-                                <select name="status"
-                                        class="min-w-[140px] px-2 py-1.5 rounded border border-outline-variant bg-surface-container-lowest font-body-sm text-body-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors">
-                                    @foreach (OrderStatus s in Enum.GetValues(typeof(OrderStatus)))
-                                    {
-                                        <option value="@s" selected="@(s == order.Status)">@s</option>
-                                    }
-                                </select>
-                                <button type="submit" class="px-3 py-1.5 rounded font-label-md text-label-md text-white bg-primary hover:bg-primary-container transition-colors">Lưu</button>
-                            </form>
+                            @if (order.Status == OrderStatus.Cancelled && !string.IsNullOrEmpty(order.CancelReason))
+                            {
+                                <p class="mb-2 px-2 py-1 rounded bg-error-container text-on-error-container font-body-sm text-body-sm max-w-[220px]">
+                                    <span class="material-symbols-outlined text-[14px] align-middle">info</span>
+                                    Lý do hủy: @order.CancelReason
+                                </p>
+                            }
+                            <span class="inline-block px-2 py-1 rounded-full font-label-md text-label-md uppercase @BadgeClass(order.Status)">@order.Status</span>
                         </td>
                         <td class="px-4 py-3">
+                            @{
+                                bool daThanhToan = order.Status == OrderStatus.Paid || order.Status == OrderStatus.Cancelled;
+                            }
                             <a asp-controller="Order" asp-action="Invoice" asp-route-id="@order.OrderId"
-                               class="px-3 py-1.5 rounded font-label-md text-label-md text-white bg-secondary-container hover:bg-secondary-container/90 transition-colors whitespace-nowrap">Xem hóa đơn</a>
+                               class="px-3 py-1.5 rounded font-label-md text-label-md text-white transition-colors whitespace-nowrap @(daThanhToan ? "bg-secondary-container hover:bg-secondary-container/90" : "bg-secondary hover:bg-secondary/90")">
+                                @(daThanhToan ? "Xem hóa đơn" : "Thanh toán")
+                            </a>
                         </td>
                     </tr>
                 }

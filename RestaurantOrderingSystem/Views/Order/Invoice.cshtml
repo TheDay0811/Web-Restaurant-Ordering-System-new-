@@ -25,6 +25,14 @@
         </div>
     </div>
 
+    @if (Model.Status == OrderStatus.Cancelled && !string.IsNullOrEmpty(Model.CancelReason))
+    {
+        <div class="mb-md px-4 py-3 rounded-lg bg-error-container text-on-error-container font-body-sm text-body-sm flex items-start gap-2">
+            <span class="material-symbols-outlined text-[18px] mt-[1px]">info</span>
+            <span><strong>Lý do hủy đơn:</strong> @Model.CancelReason</span>
+        </div>
+    }
+
     <div class="grid grid-cols-1 md:grid-cols-2 gap-md mb-md font-body-sm text-body-sm text-on-surface">
         <div>
             <strong>Khách hàng:</strong> @Model.CustomerName<br />
@@ -63,6 +71,37 @@
             </tbody>
         </table>
     </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-md mb-md">
+        @if (ViewBag.VietQrUrl != null)
+        {
+            <div class="flex flex-col items-center gap-2 p-md rounded-lg border border-outline-variant bg-surface-container-lowest">
+                <span class="font-label-md text-label-md text-on-surface-variant uppercase">Quét mã để thanh toán</span>
+                <img src="@ViewBag.VietQrUrl" alt="QR thanh toán VietQR" class="w-full max-w-[260px] aspect-square object-contain" />
+                <div class="font-body-sm text-body-sm text-on-surface text-center">
+                    <div><strong>@ViewBag.BankName</strong> - @ViewBag.AccountNumber</div>
+                    <div>Chủ TK: @ViewBag.AccountName</div>
+                    <div class="text-secondary font-bold mt-1">@Model.TotalAmount.ToString("N0") đ</div>
+                </div>
+            </div>
+        }
+        <div class="flex flex-col items-center gap-2 p-md rounded-lg border border-outline-variant bg-surface-container-lowest">
+            <span class="font-label-md text-label-md text-on-surface-variant uppercase">Mã QR hóa đơn</span>
+            <img src="data:image/png;base64,@ViewBag.InvoiceQrBase64" alt="QR hóa đơn" class="w-full max-w-[260px] aspect-square object-contain" />
+            <span class="font-body-sm text-body-sm text-on-surface-variant text-center">Quét để xem lại chi tiết hóa đơn này bất cứ lúc nào</span>
+        </div>
+    </div>
+
+    @if (User.IsInRole(UserRole.Admin) && Model.Status != OrderStatus.Paid && Model.Status != OrderStatus.Cancelled)
+    {
+        <form asp-controller="Order" asp-action="MarkPaid" asp-route-id="@Model.OrderId" method="post" class="mb-md">
+            <button type="submit"
+                    class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded font-label-lg text-label-lg text-white bg-tertiary hover:bg-tertiary/90 transition-colors">
+                <span class="material-symbols-outlined text-[20px]">check_circle</span>
+                Xác nhận đã thanh toán
+            </button>
+        </form>
+    }
 
     @if (!User.IsInRole(UserRole.Admin))
     {

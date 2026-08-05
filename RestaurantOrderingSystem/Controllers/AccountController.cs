@@ -49,6 +49,10 @@ namespace RestaurantOrderingSystem.Controllers
             SaveLoginCookie(model);
             await SignIn(user);
 
+            // Admin khong dat mon nen khong can vao Trang chu, chuyen thang vao Dashboard
+            if (user.Role == UserRole.Admin)
+                return RedirectToPage("/Admin/Dashboard/Index");
+
             return RedirectToAction("Index", "Home");
         }
 

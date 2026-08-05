@@ -9,6 +9,33 @@
     <script>
         // Tu dong tai lai trang moi 20 giay de bep luon thay don moi nhat
         setTimeout(function () { location.reload(); }, 20000);
+
+        // ===== Modal "Ly do huy don" =====
+        // Dung 1 modal duy nhat cho tat ca cac the don (card), khi bam "Huy don"
+        // tren 1 the thi dien OrderId + OrderCode vao modal roi hien len.
+        // Textarea bat buoc nhap (required) - trinh duyet se tu chan submit rong,
+        // ben KitchenController.Cancel cung kiem tra lai lan nua cho chac (double check).
+        const cancelModal = document.getElementById('cancel-modal');
+        const cancelForm = document.getElementById('cancel-form');
+        const cancelOrderIdInput = document.getElementById('cancel-order-id');
+        const cancelOrderCodeLabel = document.getElementById('cancel-order-code-label');
+        const cancelReasonInput = document.getElementById('cancel-reason-input');
+
+        function openCancelModal(orderId, orderCode) {
+            cancelOrderIdInput.value = orderId;
+            cancelOrderCodeLabel.textContent = orderCode;
+            cancelReasonInput.value = '';
+            cancelModal.classList.remove('hidden');
+            setTimeout(() => cancelReasonInput.focus(), 50);
+        }
+
+        function closeCancelModal() {
+            cancelModal.classList.add('hidden');
+        }
+
+        cancelModal?.addEventListener('click', function (e) {
+            if (e.target === cancelModal) closeCancelModal();
+        });
     </script>
 }
 
@@ -63,7 +90,7 @@ else
                         {
                             <li class="py-2 flex items-center justify-between gap-sm">
                                 <span class="font-body-lg text-body-lg text-on-surface">@item.DishName</span>
-                                <span class="font-title-md text-title-md font-bold text-primary whitespace-nowrap">x@item.Quantity</span>
+                                <span class="font-title-md text-title-md font-bold text-primary whitespace-nowrap">x@(item.Quantity)</span>
                             </li>
                         }
                     </ul>
@@ -76,13 +103,58 @@ else
                     }
                 </div>
 
-                <form asp-controller="Kitchen" asp-action="MarkDone" asp-route-id="@order.OrderId" method="post" class="p-3 pt-0">
-                    <button type="submit" class="w-full py-2 rounded-lg bg-tertiary-fixed text-on-tertiary-fixed-variant font-label-md text-label-md font-bold hover:opacity-90 transition-opacity flex items-center justify-center gap-1">
-                        <span class="material-symbols-outlined text-[18px]">check_circle</span>
-                        Đã xong
+                <div class="p-3 pt-0 flex items-center gap-2">
+                    <form asp-controller="Kitchen" asp-action="MarkDone" asp-route-id="@order.OrderId" method="post" class="flex-grow">
+                        <button type="submit" class="w-full py-2 rounded-lg bg-tertiary-fixed text-on-tertiary-fixed-variant font-label-md text-label-md font-bold hover:opacity-90 transition-opacity flex items-center justify-center gap-1">
+                            <span class="material-symbols-outlined text-[18px]">check_circle</span>
+                            Đã xong
+                        </button>
+                    </form>
+                    <button type="button"
+                            onclick="openCancelModal('@order.OrderId', '@order.OrderCode')"
+                            class="py-2 px-3 rounded-lg border border-error text-error font-label-md text-label-md font-bold hover:bg-error-container transition-colors flex items-center justify-center gap-1">
+                        <span class="material-symbols-outlined text-[18px]">cancel</span>
+                        Hủy đơn
                     </button>
-                </form>
+                </div>
             </div>
         }
+    </div>
+
+    @* ===== Modal "Ly do huy don" - dung chung cho tat ca cac the don o tren ===== *@
+    <div id="cancel-modal" class="hidden fixed inset-0 bg-black/50 z-[70] flex items-center justify-center p-margin-mobile">
+        <div class="bg-surface-container-lowest rounded-xl shadow-lg w-full max-w-md p-lg">
+            <div class="flex items-center justify-between mb-md">
+                <h3 class="font-title-md text-title-md font-bold text-error flex items-center gap-1">
+                    <span class="material-symbols-outlined">cancel</span>
+                    Hủy đơn <span id="cancel-order-code-label"></span>
+                </h3>
+                <button type="button" onclick="closeCancelModal()" class="p-1 rounded-full hover:bg-surface-variant transition-colors">
+                    <span class="material-symbols-outlined text-on-surface">close</span>
+                </button>
+            </div>
+
+            <form id="cancel-form" asp-controller="Kitchen" asp-action="Cancel" method="post">
+                <input type="hidden" id="cancel-order-id" name="id" />
+
+                <label for="cancel-reason-input" class="block font-body-sm text-body-sm text-on-surface-variant mb-1">
+                    Lý do hủy đơn <span class="text-error">*</span> (bắt buộc)
+                </label>
+                <textarea id="cancel-reason-input" name="cancelReason" required rows="3"
+                          placeholder="Ví dụ: hết nguyên liệu món cá, khách hủy tại chỗ..."
+                          class="w-full px-3 py-2 rounded-lg border border-outline-variant bg-surface-container-lowest font-body-lg text-body-lg text-on-surface focus:outline-none focus:ring-2 focus:ring-error/30 focus:border-error transition-colors resize-none"></textarea>
+
+                <div class="flex items-center justify-end gap-2 mt-md">
+                    <button type="button" onclick="closeCancelModal()"
+                            class="px-4 py-2 rounded-lg font-label-md text-label-md text-on-surface-variant border border-outline-variant hover:bg-surface-container transition-colors">
+                        Đóng
+                    </button>
+                    <button type="submit"
+                            class="px-4 py-2 rounded-lg font-label-md text-label-md text-white bg-error hover:opacity-90 transition-opacity">
+                        Xác nhận hủy đơn
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 }

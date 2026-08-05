@@ -25,8 +25,9 @@
                 </div>
                 <div>
                     <label asp-for="TableNumber" class="block font-label-md text-label-md text-on-surface mb-xs"></label>
-                    <input asp-for="TableNumber" placeholder="Ví dụ: Bàn 05 (có thể để trống nếu đặt mang về)"
-                           class="w-full rounded border border-outline-variant px-3 py-2 focus:outline-none focus:border-primary" />
+                    <select asp-for="TableNumber" asp-items="ViewBag.TableOptions"
+                            class="w-full rounded border border-outline-variant px-3 py-2 bg-surface-container-lowest focus:outline-none focus:border-primary">
+                    </select>
                 </div>
                 <div>
                     <label asp-for="Note" class="block font-label-md text-label-md text-on-surface mb-xs"></label>
