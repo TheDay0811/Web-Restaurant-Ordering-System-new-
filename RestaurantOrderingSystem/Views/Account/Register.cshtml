@@ -12,7 +12,7 @@
             <p class="font-body-lg text-body-lg text-on-surface-variant mt-xs">Tạo tài khoản khách hàng để bắt đầu đặt món.</p>
         </div>
 
-        <form asp-controller="Account" asp-action="Register" method="post" class="flex flex-col gap-md">
+        <form asp-controller="Account" asp-action="Register" asp-route-returnUrl="@ViewBag.ReturnUrl" method="post" class="flex flex-col gap-md">
             <div asp-validation-summary="ModelOnly" class="text-error font-body-sm text-body-sm"></div>
 
             <div>
@@ -78,7 +78,7 @@
 
         <p class="text-center font-body-sm text-body-sm text-on-surface-variant mt-md">
             Đã có tài khoản?
-            <a asp-controller="Account" asp-action="Login" class="text-primary font-bold hover:underline">Đăng nhập</a>
+            <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@ViewBag.ReturnUrl" class="text-primary font-bold hover:underline">Đăng nhập</a>
         </p>
 
         <div class="mt-lg p-md rounded-lg bg-secondary-fixed/40 border border-dashed border-secondary-container">

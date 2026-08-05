@@ -21,7 +21,7 @@ namespace RestaurantOrderingSystem.Controllers
         }
 
         [HttpGet]
-        public IActionResult Login()
+        public IActionResult Login(string? returnUrl = null)
         {
             LoginViewModel model = new LoginViewModel();
 
@@ -29,12 +29,15 @@ namespace RestaurantOrderingSystem.Controllers
             if (!string.IsNullOrEmpty(model.UserName))
                 model.RememberMe = true;
 
+            ViewBag.ReturnUrl = returnUrl;
             return View(model);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Login(LoginViewModel model)
+        public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
         {
+            ViewBag.ReturnUrl = returnUrl;
+
             if (!ModelState.IsValid)
                 return View(model);
 
@@ -53,18 +56,28 @@ namespace RestaurantOrderingSystem.Controllers
             if (user.Role == UserRole.Admin)
                 return RedirectToPage("/Admin/Dashboard/Index");
 
+            // Neu khach vao day tu 1 trang can dang nhap (vi du bam "Dat mon" sau khi
+            // quet QR ban), [Authorize] da tu dong gan ?returnUrl=... vao link Login -
+            // dang nhap xong thi quay lai dung trang do luon, khong bat khach tu di lai.
+            // Kiem tra IsLocalUrl de tranh Open Redirect (link la ngoai trang nao do).
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                return Redirect(returnUrl);
+
             return RedirectToAction("Index", "Home");
         }
 
         [HttpGet]
-        public IActionResult Register()
+        public IActionResult Register(string? returnUrl = null)
         {
+            ViewBag.ReturnUrl = returnUrl;
             return View(new RegisterViewModel());
         }
 
         [HttpPost]
-        public async Task<IActionResult> Register(RegisterViewModel model)
+        public async Task<IActionResult> Register(RegisterViewModel model, string? returnUrl = null)
         {
+            ViewBag.ReturnUrl = returnUrl;
+
             if (!ModelState.IsValid)
                 return View(model);
 
@@ -89,6 +102,12 @@ namespace RestaurantOrderingSystem.Controllers
 
             await SignIn(user);
             TempData["Success"] = $"Đăng ký thành công! Chào mừng {user.FullName} đến với Nhà Hàng Online.";
+
+            // Giong Login: quay lai dung trang khach dang dinh vao (vi du Checkout)
+            // thay vi luon dua ve Trang chu.
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                return Redirect(returnUrl);
+
             return RedirectToAction("Index", "Home");
         }
 
